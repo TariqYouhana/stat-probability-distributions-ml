@@ -1,0 +1,19 @@
+{
+  "sample_mean": 50.1933,
+  "theo_mean": 50.0,
+  "sample_var": 95.8864,
+  "theo_var": 100.0,
+  "sample_std": 9.7922,
+  "theo_std": 10.0,
+  "accuracy": 97.67,
+  "cm": [
+    [
+      146,
+      4
+    ],
+    [
+      3,
+      147
+    ]
+  ]
+}

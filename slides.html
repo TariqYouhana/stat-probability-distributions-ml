@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability Distributions in ML & Data Science — Group 8</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #2563EB;
+    --primary-light: #3B82F6;
+    --accent: #7C3AED;
+    --accent-light: #A78BFA;
+    --bg: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --text: #1E293B;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --gradient-1: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+    --gradient-2: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ───── Slide container ───── */
+  .slides-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 70px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    overflow-y: auto;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ───── Typography ───── */
+  h1 { font-size: 2.6rem; font-weight: 700; line-height: 1.2; margin-bottom: 14px; }
+  h2 { font-size: 1.95rem; font-weight: 700; margin-bottom: 16px; color: var(--primary); }
+  h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; color: var(--accent); }
+  p, li { font-size: 1.05rem; line-height: 1.6; color: var(--text); }
+  ul { list-style: none; padding-left: 0; }
+  ul li { padding: 5px 0 5px 24px; position: relative; }
+  ul li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 12px;
+    width: 8px; height: 8px;
+    background: var(--gradient-1);
+    border-radius: 50%;
+  }
+
+  /* ───── Special slide styles ───── */
+  .slide-title {
+    background: var(--gradient-2);
+    color: white;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+  .slide-title h1 { font-size: 3.1rem; color: white; margin-bottom: 14px; }
+  .slide-title .subtitle { font-size: 1.35rem; font-weight: 300; opacity: 0.95; margin-bottom: 20px; }
+  .slide-title .group-info { font-size: 1.05rem; opacity: 0.85; margin-top: 20px; }
+
+  .slide-conclusion {
+    background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+    color: white;
+  }
+  .slide-conclusion h2 { color: #93C5FD; }
+  .slide-conclusion li { color: #E2E8F0; }
+  .slide-conclusion li::before { background: #93C5FD; }
+  .slide-conclusion .refs { font-size: 0.85rem; color: #94A3B8; margin-top: 16px; border-top: 1px solid #475569; padding-top: 14px; }
+
+  /* ───── Cards & boxes ───── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 8px 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  .formula-box {
+    background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+    border: 2px solid var(--accent-light);
+    border-radius: 12px;
+    padding: 18px 26px;
+    margin: 12px 0;
+    text-align: center;
+    font-size: 1.35rem;
+    font-family: 'Georgia', serif;
+    color: var(--accent);
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.08);
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #DBEAFE, #EDE9FE);
+    border-left: 4px solid var(--primary);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 20px;
+    margin: 10px 0;
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 14px 0;
+  }
+  .comparison-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .comparison-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .comparison-card.gaussian { border-color: var(--primary); }
+  .comparison-card.bernoulli { border-color: var(--accent); }
+  .comparison-card.multinomial { border-color: var(--success); }
+
+  .comparison-card .icon { font-size: 2rem; margin-bottom: 8px; }
+  .comparison-card h3 { margin-bottom: 6px; }
+  .comparison-card p { font-size: 0.92rem; color: var(--text-muted); }
+
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 0.98rem;
+  }
+  .stats-table th {
+    background: var(--primary);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    border-radius: 4px 4px 0 0;
+  }
+  .stats-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .stats-table tr:nth-child(even) { background: #F8FAFC; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .tag-continuous { background: #DBEAFE; color: var(--primary); }
+  .tag-discrete { background: #EDE9FE; color: var(--accent); }
+  .tag-nb { background: #D1FAE5; color: #047857; }
+
+  .app-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 10px 0;
+  }
+  .app-card .app-icon { font-size: 2.3rem; flex-shrink: 0; }
+
+  /* ───── Figure container ───── */
+  .figure-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .figure-card:hover {
+    transform: scale(1.015);
+    box-shadow: 0 8px 20px rgba(37,99,235,0.12);
+  }
+  .figure-card img {
+    width: 100%;
+    max-height: 380px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  .figure-card .caption {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* ───── Slide counter ───── */
+  .slide-counter {
+    position: fixed;
+    bottom: 18px;
+    right: 25px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    z-index: 100;
+    background: rgba(255,255,255,0.85);
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+
+  /* ───── Progress bar ───── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 4px;
+    background: var(--gradient-2);
+    transition: width 0.3s ease;
+    z-index: 100;
+  }
+
+  .nav-hint {
+    position: fixed;
+    bottom: 18px;
+    left: 25px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    z-index: 100;
+  }
+
+  /* ───── Animations for content elements ───── */
+  .slide.active .animate-in {
+    animation: fadeSlideUp 0.45s ease forwards;
+  }
+  .slide.active .animate-in:nth-child(1) { animation-delay: 0.05s; }
+  .slide.active .animate-in:nth-child(2) { animation-delay: 0.12s; }
+  .slide.active .animate-in:nth-child(3) { animation-delay: 0.18s; }
+  .slide.active .animate-in:nth-child(4) { animation-delay: 0.24s; }
+  .slide.active .animate-in:nth-child(5) { animation-delay: 0.30s; }
+  .slide.active .animate-in:nth-child(6) { animation-delay: 0.36s; }
+
+  .animate-in {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  @keyframes fadeSlideUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 950px) {
+    .slide { padding: 25px 30px; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    .two-col, .comparison-grid { grid-template-columns: 1fr; }
+    .figure-card img { max-height: 240px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="nav-hint">← → Arrow keys / click to navigate | [F] Fullscreen</div>
+
+<div class="slides-container" id="slidesContainer">
+
+<!-- ════════════════════ SLIDE 1: TITLE ════════════════════ -->
+<div class="slide slide-title" data-slide="1">
+  <div class="animate-in">
+    <div class="subtitle">Group 8 Presentation</div>
+    <h1>Probability Distributions in<br>Machine Learning & Data Science</h1>
+    <p class="subtitle" style="margin-top:14px">Exploring the Gaussian Distribution & Naive Bayes Classification</p>
+    <div class="group-info">
+      <p>Group 8 &nbsp;|&nbsp; Probability Distribution & Statistical Modeling</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 2: WHY DISTRIBUTIONS MATTER ════════════════════ -->
+<div class="slide" data-slide="2">
+  <h2 class="animate-in">Why Probability Distributions Matter in Data Science</h2>
+  <div class="two-col">
+    <div>
+      <ul>
+        <li class="animate-in"><strong>Quantify Uncertainty:</strong> Every real-world measurement carries noise and variation; distributions allow us to model and bound this randomness.</li>
+        <li class="animate-in"><strong>Foundation of Statistical Modeling:</strong> Regression, classification, Bayesian networks, and generative AI all rely on distributional assumptions.</li>
+        <li class="animate-in"><strong>Data Generation & Simulation:</strong> Understanding distributions lets us sample synthetic data, conduct Monte Carlo testing, and evaluate risk.</li>
+        <li class="animate-in"><strong>Optimal Decision Making:</strong> Converts raw features into calibrated probabilities for high-stakes decision boundaries.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="card animate-in" style="text-align:center">
+        <h3 style="color:var(--primary)">Distributions are the Language Data Speaks</h3>
+        <p style="color:var(--text-muted); font-size:1rem; margin-top:8px">When an algorithm knows how data is distributed, it can predict outcomes, spot anomalies, and separate signals from noise.</p>
+      </div>
+      <div class="highlight-box animate-in">
+        <strong>Core Principle:</strong> Every machine learning algorithm either explicitly parameterizes a probability distribution (e.g., Naive Bayes, GMMs) or implicitly relies on its properties (e.g., Least Squares assuming Gaussian errors).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 3: GAUSSIAN INTRO ════════════════════ -->
+<div class="slide" data-slide="3">
+  <h2 class="animate-in">The Gaussian (Normal) Distribution</h2>
+  <div class="two-col">
+    <div>
+      <p class="animate-in"><span class="tag tag-continuous">Continuous</span> The cornerstone of classical and modern statistics.</p>
+      <ul>
+        <li class="animate-in">Characterized by its symmetric, unimodal <strong>"bell curve"</strong> shape.</li>
+        <li class="animate-in"><strong>Ubiquitous in Nature & Tech:</strong> Heights, blood pressure, sensor errors, and model residual noise naturally follow it.</li>
+        <li class="animate-in"><strong>Central Limit Theorem (CLT):</strong> The sum or average of independent random variables tends toward a Gaussian distribution, regardless of the original distribution.</li>
+      </ul>
+      <div class="highlight-box animate-in">
+        <strong>The 68-95-99.7 Empirical Rule:</strong><br>
+        • <strong>68.27%</strong> of values lie within <strong>μ ± 1σ</strong><br>
+        • <strong>95.45%</strong> of values lie within <strong>μ ± 2σ</strong><br>
+        • <strong>99.73%</strong> of values lie within <strong>μ ± 3σ</strong>
+      </div>
+    </div>
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_empirical_rule.png" alt="The 68-95-99.7 Empirical Rule">
+        <div class="caption">Figure: Gaussian Bell Curve with 1σ, 2σ, and 3σ Shaded Bands</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 4: MATH FOUNDATION ════════════════════ -->
+<div class="slide" data-slide="4">
+  <h2 class="animate-in">Gaussian Distribution — Mathematical Foundation</h2>
+  <div class="formula-box animate-in">
+    f(x) = <span style="font-size:1.15em">1</span> / (σ√(2π)) · exp( − (x − μ)² / (2σ²) )
+  </div>
+  <div class="two-col">
+    <div>
+      <table class="stats-table animate-in">
+        <tr><th>Symbol / Term</th><th>Statistical Role</th></tr>
+        <tr><td><strong>x ∈ (-∞, +∞)</strong></td><td>Continuous random variable outcome</td></tr>
+        <tr><td><strong>μ = E[X]</strong></td><td>Location parameter (Mean, Median, Mode)</td></tr>
+        <tr><td><strong>σ</strong></td><td>Scale parameter (Standard Deviation, spread)</td></tr>
+        <tr><td><strong>σ² = Var(X)</strong></td><td>Variance of the distribution</td></tr>
+        <tr><td><strong>1 / (σ√(2π))</strong></td><td>Normalizing constant ensuring ∫ f(x) dx = 1</td></tr>
+        <tr><td><strong>exp(-(x-μ)² / 2σ²)</strong></td><td>Exponential kernel creating the symmetric bell decay</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card animate-in">
+        <h3>Fundamental Properties</h3>
+        <ul>
+          <li><strong>Symmetry:</strong> Exactly zero skewness around μ; Mode = Median = Mean.</li>
+          <li><strong>Inflection Points:</strong> The curve changes concavity at x = μ ± σ.</li>
+          <li><strong>Affine Invariance:</strong> Linear transformation Y = aX + b ~ N(aμ+b, a²σ²).</li>
+        </ul>
+      </div>
+      <div class="highlight-box animate-in">
+        <strong>Key Assumptions:</strong> Continuous data domain, symmetric error dispersion, and lack of heavy, extreme power-law tails.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 5: SHAPE & PARAMETERS ════════════════════ -->
+<div class="slide" data-slide="5">
+  <h2 class="animate-in">Parameters & Cumulative Density (CDF)</h2>
+  <div class="two-col">
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_parameter_effects.png" alt="Effect of Changing Parameters">
+        <div class="caption">Figure 5A: μ Shifts Curve Location (Left); σ Controls Dispersion (Right)</div>
+      </div>
+      <ul style="margin-top:8px">
+        <li class="animate-in"><strong>Varying μ:</strong> Shifts the curve horizontally along the axis without altering width or peak height.</li>
+        <li class="animate-in"><strong>Varying σ:</strong> Smaller σ creates a sharp, narrow peak; larger σ flattens and widens the spread.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_cdf.png" alt="CDF of the Gaussian">
+        <div class="caption">Figure 5B: S-Shaped Cumulative Distribution Function F(x) = P(X ≤ x)</div>
+      </div>
+      <div class="highlight-box animate-in" style="margin-top:8px">
+        <strong>CDF Properties:</strong> Monotonically increases from 0 to 1. At x = μ, F(μ) = 0.50 (50th percentile). Used directly in hypothesis testing and p-value calculation.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 6: BERNOULLI & MULTINOMIAL ════════════════════ -->
+<div class="slide" data-slide="6">
+  <h2 class="animate-in">Discrete Siblings: Bernoulli & Multinomial</h2>
+  <div class="two-col">
+    <div>
+      <div class="card animate-in">
+        <h3><span class="tag tag-discrete">Discrete</span> Bernoulli Distribution</h3>
+        <p>Models a single binary event (Success = 1, Failure = 0):</p>
+        <div class="formula-box" style="font-size:1.05rem; padding:10px; margin:8px 0">
+          P(X = k) = p<sup>k</sup> (1 − p)<sup>1−k</sup>, &nbsp; k ∈ {0, 1}
+        </div>
+        <p><strong>Mean:</strong> μ = p &nbsp;|&nbsp; <strong>Variance:</strong> σ² = p(1 − p)</p>
+        <p style="font-size:0.92rem; color:var(--text-muted)">Applied in binary feature presence (e.g. word exists in document: Yes/No).</p>
+      </div>
+
+      <div class="card animate-in">
+        <h3><span class="tag tag-discrete">Discrete</span> Multinomial Distribution</h3>
+        <p>Generalizes Bernoulli/Binomial to <em>K</em> distinct discrete categories:</p>
+        <div class="formula-box" style="font-size:0.95rem; padding:10px; margin:8px 0">
+          P(X₁=x₁,…,Xₖ=xₖ) = (n! / ∏ xᵢ!) ∏ pᵢ<sup>xᵢ</sup>
+        </div>
+        <p><strong>Mean:</strong> E[Xᵢ] = n·pᵢ &nbsp;|&nbsp; <strong>Variance:</strong> Var(Xᵢ) = n·pᵢ(1 − pᵢ)</p>
+        <p style="font-size:0.92rem; color:var(--text-muted)">Applied in frequency counts (e.g. term occurrences in text mining).</p>
+      </div>
+    </div>
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_bernoulli_multinomial.png" alt="Bernoulli & Multinomial Plots">
+        <div class="caption">Figure: Probability Mass Functions for Binary and Categorical Outcomes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 7: INTRO TO NAIVE BAYES ════════════════════ -->
+<div class="slide" data-slide="7">
+  <h2 class="animate-in">Introduction to Naive Bayes Classification</h2>
+  <div class="formula-box animate-in" style="font-size:1.5rem">
+    P(C<sub>k</sub> | X) = [ P(X | C<sub>k</sub>) · P(C<sub>k</sub>) ] / P(X)
+  </div>
+  <div class="two-col">
+    <div>
+      <table class="stats-table animate-in">
+        <tr><th>Bayesian Component</th><th>Definition & Role</th></tr>
+        <tr><td><strong>Posterior: P(C<sub>k</sub> | X)</strong></td><td>Probability that instance X belongs to class C<sub>k</sub></td></tr>
+        <tr><td><strong>Likelihood: P(X | C<sub>k</sub>)</strong></td><td>Probability of observing features X given class C<sub>k</sub></td></tr>
+        <tr><td><strong>Prior: P(C<sub>k</sub>)</strong></td><td>Baseline relative frequency of class C<sub>k</sub> in training data</td></tr>
+        <tr><td><strong>Evidence: P(X)</strong></td><td>Total probability of features (constant normalizer)</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="highlight-box animate-in">
+        <strong>The "Naive" Independence Assumption:</strong><br>
+        All features x₁, x₂, …, x<sub>d</sub> are assumed conditionally independent given the class label C<sub>k</sub>:
+        <div style="font-family:Georgia; font-size:1.15rem; margin-top:6px; color:var(--primary); text-align:center">
+          P(X | C<sub>k</sub>) = ∏<sub>j=1..d</sub> P(x<sub>j</sub> | C<sub>k</sub>)
+        </div>
+      </div>
+      <div class="card animate-in" style="border-left: 3px solid var(--success)">
+        <p><strong>Why it succeeds in practice:</strong> Classification only requires picking the <code>argmax</code> posterior. Even when probability estimates are skewed by feature correlation, the optimal ranking between classes frequently remains correct.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 8: GAUSSIAN NB ════════════════════ -->
+<div class="slide" data-slide="8">
+  <h2 class="animate-in">Gaussian Naive Bayes (GNB) Classifier</h2>
+  <div class="two-col">
+    <div>
+      <ul>
+        <li class="animate-in">Designed for continuous numeric features (e.g., measurements, voltages, lab values).</li>
+        <li class="animate-in">Assumes the likelihood of each feature conditioned on class C<sub>k</sub> follows a 1D Normal distribution:</li>
+      </ul>
+      <div class="formula-box animate-in" style="font-size:1.05rem; padding:12px">
+        P(x<sub>j</sub> | C<sub>k</sub>) = (1 / (σ<sub>kj</sub>√(2π))) · exp( − (x<sub>j</sub> − μ<sub>kj</sub>)² / (2σ<sub>kj</sub>²) )
+      </div>
+      <div class="highlight-box animate-in">
+        <strong>Decision Rule:</strong><br>
+        Assign class <strong>C* = argmax [ log P(C<sub>k</sub>) + ∑ log P(x<sub>j</sub> | C<sub>k</sub>) ]</strong>
+      </div>
+      <div class="card animate-in">
+        <p><strong>Estimation:</strong> For each class and feature, we only need to estimate sample mean <strong>μ̂<sub>kj</sub></strong> and sample variance <strong>σ̂²<sub>kj</sub></strong>. Extremely fast training with O(N · d) complexity!</p>
+      </div>
+    </div>
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_feature_distributions.png" alt="Feature Distributions by Class">
+        <div class="caption">Figure: Overlapping Class-Conditional Gaussian Densities for Features 1 & 2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 9: NB VARIANTS COMPARISON ════════════════════ -->
+<div class="slide" data-slide="9">
+  <h2 class="animate-in">Naive Bayes Family — Architectural Comparison</h2>
+  <div class="comparison-grid">
+    <div class="comparison-card gaussian animate-in">
+      <div class="icon">📈</div>
+      <h3 style="color:var(--primary)">Gaussian NB</h3>
+      <span class="tag tag-continuous">Continuous</span>
+      <p style="margin-top:8px"><strong>Feature Domain:</strong> Real numbers ℝ (e.g. sensor readings, prices, blood tests)</p>
+      <p style="margin-top:6px"><strong>Likelihood Model:</strong> Continuous Normal PDF</p>
+      <p style="margin-top:6px"><strong>Parameters per Class:</strong> Mean μ<sub>kj</sub>, Variance σ²<sub>kj</sub></p>
+    </div>
+
+    <div class="comparison-card bernoulli animate-in">
+      <div class="icon">🔘</div>
+      <h3 style="color:var(--accent)">Bernoulli NB</h3>
+      <span class="tag tag-discrete">Binary</span>
+      <p style="margin-top:8px"><strong>Feature Domain:</strong> Binary values {0, 1} (word present / absent)</p>
+      <p style="margin-top:6px"><strong>Likelihood Model:</strong> Discrete Bernoulli PMF</p>
+      <p style="margin-top:6px"><strong>Parameters per Class:</strong> Probability of presence p<sub>kj</sub></p>
+    </div>
+
+    <div class="comparison-card multinomial animate-in">
+      <div class="icon">📊</div>
+      <h3 style="color:var(--success)">Multinomial NB</h3>
+      <span class="tag tag-discrete">Counts</span>
+      <p style="margin-top:8px"><strong>Feature Domain:</strong> Integer counts ℕ₀ (term frequencies, token occurrences)</p>
+      <p style="margin-top:6px"><strong>Likelihood Model:</strong> Multinomial PMF</p>
+      <p style="margin-top:6px"><strong>Parameters per Class:</strong> Token frequency ratio θ<sub>kj</sub></p>
+    </div>
+  </div>
+  <div class="highlight-box animate-in">
+    <strong>Unified Principle:</strong> All variants apply Bayes' Rule and conditional independence; the only difference is the <em>likelihood distribution</em> chosen to match the feature type.
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 10: LIKELIHOOD & MLE ════════════════════ -->
+<div class="slide" data-slide="10">
+  <h2 class="animate-in">Likelihood & Maximum Likelihood Estimation (MLE)</h2>
+  <div class="two-col">
+    <div>
+      <div class="card animate-in">
+        <h3>What is Likelihood?</h3>
+        <p>Given observed sample data D, the <strong>likelihood function</strong> L(θ | D) evaluates the plausibility of parameter vector θ:</p>
+        <div class="formula-box" style="font-size:1.05rem; padding:10px; margin:8px 0">
+          L(θ | D) = ∏<sub>i=1..n</sub> f(x<sub>i</sub> | θ) &nbsp;⇒&nbsp; ln L(θ) = ∑ ln f(x<sub>i</sub> | θ)
+        </div>
+      </div>
+      <div class="card animate-in">
+        <h3>The Maximum Likelihood Estimator</h3>
+        <p>Finds parameter values that maximize the observed data probability:</p>
+        <div class="formula-box" style="font-size:1.05rem; padding:10px; margin:8px 0">
+          θ̂<sub>MLE</sub> = argmax<sub>θ</sub> ln L(θ | D)
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="highlight-box animate-in">
+        <strong>Analytical Solution for Gaussian Distribution:</strong><br>
+        Setting ∂ ln L / ∂μ = 0 and ∂ ln L / ∂σ² = 0 yields exact closed-form solutions:
+        <ul style="margin-top:8px">
+          <li><strong>Mean MLE:</strong> μ̂ = (1 / n) ∑ x<sub>i</sub> &nbsp;(Sample Mean)</li>
+          <li><strong>Variance MLE:</strong> σ̂² = (1 / n) ∑ (x<sub>i</sub> − μ̂)² &nbsp;(Sample Variance)</li>
+        </ul>
+      </div>
+      <div class="card animate-in" style="border-left: 3px solid var(--success); background: #F0FDF4">
+        <p>✅ <strong>Zero Iterative Optimization:</strong> Unlike Neural Networks or SVMs requiring gradient descent, Gaussian NB parameters are computed directly in a single pass over the dataset.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 11: APPLICATION 1 — SPAM ════════════════════ -->
+<div class="slide" data-slide="11">
+  <h2 class="animate-in">Application 1: Email Spam Filtering</h2>
+  <div class="app-card animate-in">
+    <div class="app-icon">📧</div>
+    <div>
+      <h3>Text Classification via Discrete Naive Bayes</h3>
+      <ul>
+        <li><strong>Bag-of-Words Representation:</strong> Emails converted to vector of token indicators (Bernoulli NB) or word occurrences (Multinomial NB).</li>
+        <li><strong>Spam Likelihood:</strong> Words like "free", "lottery", "urgent" have high likelihood P(w | Spam) and low P(w | Ham).</li>
+        <li><strong>Real-Time Execution:</strong> Multiplication of sparse probabilities takes microseconds per incoming email.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="highlight-box animate-in">
+      <strong>Why Naive Bayes Dominates Text Baselines:</strong>
+      <ul>
+        <li>Robust to extreme feature dimensionality (10,000+ vocabulary tokens).</li>
+        <li>Gracefully handles rare words using Laplace add-one smoothing.</li>
+        <li>Incremental learning: model updates instantly as users mark spam.</li>
+      </ul>
+    </div>
+    <div class="card animate-in" style="text-align:center">
+      <p style="font-size:1rem; font-weight:600; color:var(--primary)">Historic Milestone</p>
+      <p style="font-size:0.92rem; color:var(--text-muted); margin-top:4px">Paul Graham's landmark essay <em>"A Plan for Spam"</em> (2002) popularized Bayesian spam filtering, powering early production spam engines including SpamAssassin and Gmail.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 12: APPLICATION 2 — MEDICAL ════════════════════ -->
+<div class="slide" data-slide="12">
+  <h2 class="animate-in">Application 2: Medical Diagnostic Screening</h2>
+  <div class="app-card animate-in">
+    <div class="app-icon">🏥</div>
+    <div>
+      <h3>Gaussian NB in Clinical Risk Prediction</h3>
+      <ul>
+        <li><strong>Continuous Physiological Markers:</strong> Systolic blood pressure, fasting blood glucose, cholesterol, and BMI.</li>
+        <li><strong>Biological Distribution:</strong> In healthy and diseased cohorts, clinical metrics exhibit natural bell-shaped variation.</li>
+        <li><strong>Probabilistic Output:</strong> Delivers risk scores P(Disease = 1 | vitals) rather than rigid black-box labels.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="highlight-box animate-in">
+      <strong>Clinical Advantages:</strong>
+      <ul>
+        <li><strong>Interpretability:</strong> Clinicians can inspect μ and σ for each biomarker and understand which feature shifted the diagnosis.</li>
+        <li><strong>Handles Missing Biomarkers:</strong> Unmeasured tests are simply omitted from the product rule without retraining.</li>
+        <li><strong>Triage Screening:</strong> Provides immediate low-cost risk screening before invasive diagnostic procedures.</li>
+      </ul>
+    </div>
+    <div class="card animate-in">
+      <h3 style="color:var(--accent)">Real-World Benchmark</h3>
+      <p style="font-size:0.92rem; color:var(--text-muted)">The Wisconsin Breast Cancer and Pima Indians Diabetes benchmarks consistently show Gaussian NB achieving 93–96% diagnostic accuracy despite its simplicity.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 13: DEMO PART A ════════════════════ -->
+<div class="slide" data-slide="13">
+  <h2 class="animate-in">Practical Demo — Part A: Distribution Simulation</h2>
+  <div class="two-col">
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_histogram_overlay.png" alt="Simulation Histogram with Theoretical Overlay">
+        <div class="caption">Figure: 1,000 Simulated Samples vs Theoretical PDF N(μ=50, σ=10)</div>
+      </div>
+    </div>
+    <div>
+      <div class="card animate-in">
+        <h3>Empirical vs Theoretical Metrics</h3>
+        <table class="stats-table">
+          <tr><th>Metric</th><th>Theoretical</th><th>Simulated (n=1,000)</th><th>Absolute Error</th></tr>
+          <tr><td><strong>Mean (μ)</strong></td><td>50.0000</td><td><strong>50.1933</strong></td><td>0.1933</td></tr>
+          <tr><td><strong>Variance (σ²)</strong></td><td>100.0000</td><td><strong>95.8864</strong></td><td>4.1136</td></tr>
+          <tr><td><strong>Std Dev (σ)</strong></td><td>10.0000</td><td><strong>9.7922</strong></td><td>0.2078</td></tr>
+        </table>
+      </div>
+      <div class="highlight-box animate-in">
+        <strong>Statistical Validation:</strong><br>
+        • With N=1,000 observations, the sample mean deviates by only <strong>0.38%</strong> from ground truth.<br>
+        • Confirms the <strong>Weak Law of Large Numbers (WLLN)</strong>: sample moments converge in probability to true distribution parameters.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 14: DEMO PART B ════════════════════ -->
+<div class="slide" data-slide="14">
+  <h2 class="animate-in">Practical Demo — Part B: Gaussian NB in Action</h2>
+  <div class="two-col">
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_decision_boundary.png" alt="GNB Decision Boundary">
+        <div class="caption">Figure 14A: Learned Quadratic Decision Boundary on 2D Gaussian Features</div>
+      </div>
+    </div>
+    <div>
+      <div class="figure-card animate-in" style="max-width: 320px; margin: 0 auto">
+        <img src="fig_confusion_matrix.png" alt="Confusion Matrix">
+        <div class="caption">Figure 14B: Confusion Matrix (Test Split n=300)</div>
+      </div>
+      <div class="card animate-in" style="margin-top:10px">
+        <h3 style="color:var(--success)">Evaluation Summary</h3>
+        <ul style="font-size:0.95rem">
+          <li><strong>Test Set Accuracy:</strong> <strong style="color:var(--success); font-size:1.1rem">97.67%</strong> (293 / 300 correct)</li>
+          <li><strong>Learned Class 0:</strong> μ̂ = [2.01, 2.98], σ̂² = [1.53, 1.01]</li>
+          <li><strong>Learned Class 1:</strong> μ̂ = [4.99, 6.02], σ̂² = [1.18, 1.32]</li>
+          <li><strong>Boundary Shape:</strong> Quadratic boundary arises because class covariance matrices differ.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 15: CONCLUSION ════════════════════ -->
+<div class="slide slide-conclusion" data-slide="15">
+  <h2 class="animate-in">Conclusion & Key Takeaways</h2>
+  <div class="two-col">
+    <div>
+      <ul>
+        <li class="animate-in"><strong>Gaussian Distribution:</strong> Foundational for continuous modeling due to symmetry, mathematical tractability, and the Central Limit Theorem.</li>
+        <li class="animate-in"><strong>Model Selection Principle:</strong>
+          <br>• Continuous Features → <strong>Gaussian Naive Bayes</strong>
+          <br>• Binary Indicators → <strong>Bernoulli Naive Bayes</strong>
+          <br>• Count / Frequencies → <strong>Multinomial Naive Bayes</strong>
+        </li>
+        <li class="animate-in"><strong>Maximum Likelihood Estimation:</strong> Yields optimal, closed-form parameter solutions without expensive iterative solvers.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="card animate-in" style="background: rgba(255,255,255,0.08); border-color: #475569">
+        <h3 style="color: #FCA5A5">⚠️ Critical Limitations</h3>
+        <ul>
+          <li style="color:#E2E8F0"><strong>Independence Violation:</strong> Strongly correlated features cause overconfident probability estimates.</li>
+          <li style="color:#E2E8F0"><strong>Non-Normality Risk:</strong> Multimodal or heavy-tailed data degrades Gaussian NB performance (consider KDE or Random Forests).</li>
+          <li style="color:#E2E8F0"><strong>Zero-Frequency Problem:</strong> Requires additive smoothing for unseen discrete values.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="refs animate-in">
+    <strong>Academic References:</strong><br>
+    [1] Wackerly, D., Mendenhall, W., & Scheaffer, R. <em>Mathematical Statistics with Applications</em>, 7th ed., Cengage Learning, 2008.<br>
+    [2] Bishop, C. M. <em>Pattern Recognition and Machine Learning</em>. Information Science and Statistics, Springer, 2006.<br>
+    [3] Murphy, K. P. <em>Machine Learning: A Probabilistic Perspective</em>. MIT Press, 2012.<br>
+    [4] Pedregosa, F., et al. <em>Scikit-learn: Machine Learning in Python</em>. JMLR 12, pp. 2825-2830, 2011.
+  </div>
+  <p class="animate-in" style="text-align:center; margin-top:14px; font-size:1.2rem; color:white">
+    Thank You! &nbsp;Questions & Discussion 🙋
+  </p>
+</div>
+
+</div><!-- /slides-container -->
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('slideCounter');
+  const progressBar = document.getElementById('progressBar');
+  let current = 0;
+
+  function showSlide(index) {
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'exit-left');
+      if (i < index) s.classList.add('exit-left');
+    });
+    slides[index].classList.add('active');
+    counter.textContent = `${index + 1} / ${slides.length}`;
+    progressBar.style.width = `${((index + 1) / slides.length) * 100}%`;
+  }
+
+  function next() { if (current < slides.length - 1) { current++; showSlide(current); } }
+  function prev() { if (current > 0) { current--; showSlide(current); } }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'IMG') return;
+    if (e.clientX < window.innerWidth / 3) prev();
+    else next();
+  });
+
+  showSlide(0);
+})();
+</script>
+</body>
+</html>

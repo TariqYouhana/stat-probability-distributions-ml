@@ -1,0 +1,15 @@
+{
+  "n_sim": 20,
+  "p_sim": 0.6,
+  "N_samples": 1000,
+  "sample_mean": 12.072,
+  "theo_mean": 12.0,
+  "mean_diff": 0.072,
+  "sample_var": 4.8076,
+  "theo_var": 4.8,
+  "var_diff": 0.0076,
+  "sample_std": 2.1926,
+  "theo_std": 2.1909,
+  "std_diff": 0.0017,
+  "mle_p": 0.6036
+}

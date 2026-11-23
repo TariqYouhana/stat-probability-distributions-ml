@@ -1,279 +1,209 @@
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-plt.show = lambda *args, **kwargs: None
-
 import numpy as np
 import seaborn as sns
 from scipy import stats
-from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import json
 
-# Set consistent style
+# Style configuration
 sns.set_style('whitegrid')
-plt.rcParams['figure.figsize'] = (10, 6)
+plt.rcParams['font.sans-serif'] = 'DejaVu Sans'
 plt.rcParams['font.size'] = 12
+plt.rcParams['figure.dpi'] = 200
 np.random.seed(42)
 
-print('--- PART A: Distribution Exploration ---')
+PRIMARY = '#2563EB'      # Blue
+ACCENT = '#7C3AED'       # Purple
+SUCCESS = '#10B981'      # Green
+DANGER = '#DC2626'       # Red
+ORANGE = '#F59E0B'       # Orange
 
-# Parameters for Gaussian distribution
-mu = 50        # True mean
-sigma = 10     # True standard deviation
-n_samples = 1000
+print("--- Generating Binomial Figures ---")
 
-# Generate random samples
-samples = np.random.normal(loc=mu, scale=sigma, size=n_samples)
-
-# A1. Histogram with theoretical PDF overlay (SLIDE 13)
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.hist(samples, bins=40, density=True, alpha=0.6, color='#2563EB', 
-        edgecolor='white', label=f'Histogram (n={n_samples})')
-x = np.linspace(mu - 4*sigma, mu + 4*sigma, 300)
-pdf = stats.norm.pdf(x, loc=mu, scale=sigma)
-ax.plot(x, pdf, color='#DC2626', linewidth=2.5, label=f'Theoretical PDF (μ={mu}, σ={sigma})')
-ax.set_xlabel('Value', fontsize=13)
-ax.set_ylabel('Density', fontsize=13)
-ax.set_title('Gaussian Distribution: 1,000 Random Samples vs Theoretical PDF', fontsize=14, fontweight='bold')
-ax.legend(fontsize=11)
-plt.tight_layout()
-plt.savefig('fig_histogram_overlay.png', dpi=200, bbox_inches='tight')
-plt.close()
-print("Saved fig_histogram_overlay.png")
-
-# A2. Calculate sample statistics (SLIDE 13)
-sample_mean = float(np.mean(samples))
-sample_var = float(np.var(samples, ddof=1))
-sample_std = float(np.std(samples, ddof=1))
-theo_mean = float(mu)
-theo_var = float(sigma**2)
-theo_std = float(sigma)
-
-print(f"Sample Mean: {sample_mean:.4f} | Theoretical: {theo_mean:.4f}")
-print(f"Sample Var:  {sample_var:.4f} | Theoretical: {theo_var:.4f}")
-print(f"Sample Std:  {sample_std:.4f} | Theoretical: {theo_std:.4f}")
-
-# A3. Effect of Changing Parameters (SLIDE 5)
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-x_range = np.linspace(-10, 30, 400)
-for mean_val, color in zip([0, 5, 10, 15], ['#2563EB', '#D97706', '#10B981', '#DC2626']):
-    pdf_vals = stats.norm.pdf(x_range, loc=mean_val, scale=3)
-    axes[0].plot(x_range, pdf_vals, linewidth=2, label=f'μ = {mean_val}', color=color)
-axes[0].set_title('Effect of Changing μ (σ = 3 fixed)', fontsize=13, fontweight='bold')
-axes[0].set_xlabel('x')
-axes[0].set_ylabel('f(x)')
-axes[0].legend()
-
-x_range = np.linspace(-15, 15, 400)
-for std_val, color in zip([1, 2, 3, 5], ['#2563EB', '#D97706', '#10B981', '#DC2626']):
-    pdf_vals = stats.norm.pdf(x_range, loc=0, scale=std_val)
-    axes[1].plot(x_range, pdf_vals, linewidth=2, label=f'σ = {std_val}', color=color)
-axes[1].set_title('Effect of Changing σ (μ = 0 fixed)', fontsize=13, fontweight='bold')
-axes[1].set_xlabel('x')
-axes[1].set_ylabel('f(x)')
-axes[1].legend()
-plt.tight_layout()
-plt.savefig('fig_parameter_effects.png', dpi=200, bbox_inches='tight')
-plt.close()
-print("Saved fig_parameter_effects.png")
-
-# A4. CDF Plot (SLIDE 5)
-fig, ax = plt.subplots(figsize=(10, 6))
-x = np.linspace(mu - 4*sigma, mu + 4*sigma, 300)
-cdf = stats.norm.cdf(x, loc=mu, scale=sigma)
-ax.plot(x, cdf, color='#2563EB', linewidth=2.5, label=f'CDF (μ={mu}, σ={sigma})')
-for z, pct in zip([-1, 0, 1], ['15.87%', '50%', '84.13%']):
-    x_val = mu + z * sigma
-    y_val = stats.norm.cdf(x_val, loc=mu, scale=sigma)
-    ax.plot(x_val, y_val, 'ro', markersize=8)
-    ax.annotate(f'({x_val:.0f}, {pct})', xy=(x_val, y_val), 
-                xytext=(x_val + 2, y_val - 0.08), fontsize=10,
-                arrowprops=dict(arrowstyle='->', color='red'))
-ax.set_xlabel('Value', fontsize=13)
-ax.set_ylabel('Cumulative Probability', fontsize=13)
-ax.set_title('Cumulative Distribution Function (CDF) of the Gaussian', fontsize=14, fontweight='bold')
-ax.legend(fontsize=11)
-ax.axhline(y=0.5, color='gray', linestyle='--', alpha=0.5)
-ax.axvline(x=mu, color='gray', linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.savefig('fig_cdf.png', dpi=200, bbox_inches='tight')
-plt.close()
-print("Saved fig_cdf.png")
-
-# A5. Empirical Rule 68-95-99.7 (SLIDE 3)
-fig, ax = plt.subplots(figsize=(10, 6))
-x = np.linspace(mu - 4*sigma, mu + 4*sigma, 500)
-y_pdf = stats.norm.pdf(x, loc=mu, scale=sigma)
-ax.plot(x, y_pdf, 'k-', linewidth=2)
-colors = ['#93C5FD', '#BFDBFE', '#DBEAFE']
-labels = ['99.7% (μ ± 3σ)', '95% (μ ± 2σ)', '68% (μ ± 1σ)']
-sigmas = [3, 2, 1]
-for s, color, label in zip(sigmas, colors, labels):
-    x_fill = np.linspace(mu - s*sigma, mu + s*sigma, 300)
-    y_fill = stats.norm.pdf(x_fill, loc=mu, scale=sigma)
-    ax.fill_between(x_fill, y_fill, alpha=0.6, color=color, label=label)
-ax.set_xlabel('Value', fontsize=13)
-ax.set_ylabel('Density', fontsize=13)
-ax.set_title('The 68-95-99.7 Rule (Empirical Rule)', fontsize=14, fontweight='bold')
-ax.legend(fontsize=11, loc='upper right')
-for s in [-3, -2, -1, 0, 1, 2, 3]:
-    ax.axvline(x=mu + s*sigma, color='gray', linestyle=':', alpha=0.4)
-    if s != 0:
-        ax.text(mu + s*sigma, -0.002, f'{s}σ', ha='center', fontsize=9, color='gray')
-    else:
-        ax.text(mu, -0.002, 'μ', ha='center', fontsize=10, fontweight='bold')
-plt.tight_layout()
-plt.savefig('fig_empirical_rule.png', dpi=200, bbox_inches='tight')
-plt.close()
-print("Saved fig_empirical_rule.png")
-
-# A6. Bernoulli & Multinomial (SLIDE 6)
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-p_values = [0.3, 0.5, 0.7]
-bar_width = 0.2
-for i, p in enumerate(p_values):
-    x_positions = np.array([0, 1]) + i * bar_width
-    probs = [1 - p, p]
-    axes[0].bar(x_positions, probs, width=bar_width, alpha=0.85, label=f'p = {p}')
-axes[0].set_xticks([0 + bar_width, 1 + bar_width])
-axes[0].set_xticklabels(['X = 0 (Failure)', 'X = 1 (Success)'])
-axes[0].set_ylabel('Probability')
-axes[0].set_title('Bernoulli Distribution (Varying p)', fontsize=13, fontweight='bold')
-axes[0].legend()
-axes[0].set_ylim(0, 1)
-
-categories = ['Cat A', 'Cat B', 'Cat C', 'Cat D']
-probs_set = [
-    [0.4, 0.3, 0.2, 0.1],
-    [0.25, 0.25, 0.25, 0.25],
+# 1. Slide 6: Effect of changing probability p (n = 20 fixed)
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.5), sharey=True)
+n_fixed = 20
+p_vals = [0.2, 0.5, 0.8]
+colors = [ORANGE, PRIMARY, ACCENT]
+titles = [
+    'Right-Skewed: p = 0.2\n(Success is rare)',
+    'Symmetric: p = 0.5\n(Equally likely outcomes)',
+    'Left-Skewed: p = 0.8\n(Success is common)'
 ]
-labels_multi = ['Skewed', 'Uniform']
-bar_width = 0.35
-x_pos = np.arange(len(categories))
-for i, (probs, lbl) in enumerate(zip(probs_set, labels_multi)):
-    axes[1].bar(x_pos + i * bar_width, probs, width=bar_width, alpha=0.85, label=lbl)
-axes[1].set_xticks(x_pos + bar_width / 2)
-axes[1].set_xticklabels(categories)
-axes[1].set_ylabel('Probability')
-axes[1].set_title('Multinomial Distribution (Single Trial)', fontsize=13, fontweight='bold')
-axes[1].legend()
-axes[1].set_ylim(0, 0.6)
+
+for ax, p, color, title in zip(axes, p_vals, colors, titles):
+    k = np.arange(0, n_fixed + 1)
+    pmf = stats.binom.pmf(k, n_fixed, p)
+    ax.bar(k, pmf, color=color, alpha=0.85, edgecolor='white', width=0.8)
+    mean_val = n_fixed * p
+    ax.axvline(x=mean_val, color=DANGER, linestyle='--', linewidth=2, label=f'Mean μ = {mean_val:.1f}')
+    ax.set_title(title, fontsize=12, fontweight='bold')
+    ax.set_xlabel('Number of Successes (k)', fontsize=11)
+    ax.set_xticks(range(0, n_fixed + 1, 4))
+    ax.legend(fontsize=10, loc='upper left' if p > 0.5 else 'upper right')
+
+axes[0].set_ylabel('Probability P(X = k)', fontsize=12)
+plt.suptitle('Figure 6: Impact of Probability p on Binomial Shape (Fixed n = 20)', 
+             fontsize=14, fontweight='bold', y=1.03)
 plt.tight_layout()
-plt.savefig('fig_bernoulli_multinomial.png', dpi=200, bbox_inches='tight')
+plt.savefig('fig_binomial_pmf_variations.png', bbox_inches='tight')
 plt.close()
-print("Saved fig_bernoulli_multinomial.png")
+print("Saved fig_binomial_pmf_variations.png")
 
+# 2. Slide 7A: Effect of changing trial count n (p = 0.5 fixed)
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+n_list = [10, 30, 100]
+colors_n = [PRIMARY, ACCENT, SUCCESS]
 
-print('\n--- PART B: Gaussian Naive Bayes Classifier ---')
+for ax, n_val, color in zip(axes, n_list, colors_n):
+    k = np.arange(0, n_val + 1)
+    pmf = stats.binom.pmf(k, n_val, 0.5)
+    ax.bar(k, pmf, color=color, alpha=0.8, edgecolor='none', width=1.0)
+    mean_val = n_val * 0.5
+    std_val = np.sqrt(n_val * 0.5 * 0.5)
+    ax.set_title(f'n = {n_val} trials (p = 0.5)\nμ = {mean_val:.1f}, σ = {std_val:.2f}', fontsize=12, fontweight='bold')
+    ax.set_xlabel('Successes (k)', fontsize=11)
+    ax.set_ylabel('Probability' if ax == axes[0] else '')
 
-# B1. Generate Synthetic Dataset (SLIDE 14)
-n_class0 = 500
-X_class0 = np.random.multivariate_normal(
-    mean=[2, 3], 
-    cov=[[1.5, 0.3], [0.3, 1.0]], 
-    size=n_class0
-)
-n_class1 = 500
-X_class1 = np.random.multivariate_normal(
-    mean=[5, 6], 
-    cov=[[1.2, -0.2], [-0.2, 1.3]], 
-    size=n_class1
-)
-X = np.vstack([X_class0, X_class1])
-y = np.array([0] * n_class0 + [1] * n_class1)
-
-fig, ax = plt.subplots(figsize=(8, 6))
-scatter = ax.scatter(X[:, 0], X[:, 1], c=y, cmap='coolwarm', alpha=0.7, edgecolors='w', linewidth=0.5)
-ax.set_xlabel('Feature 1', fontsize=13)
-ax.set_ylabel('Feature 2', fontsize=13)
-ax.set_title('Synthetic Dataset: 2 Classes, 2 Gaussian Features', fontsize=14, fontweight='bold')
-plt.colorbar(scatter, label='Class', ticks=[0, 1])
+plt.suptitle('Figure 7A: As n Increases, the Distribution Smooths and Widens', 
+             fontsize=14, fontweight='bold', y=1.03)
 plt.tight_layout()
-plt.savefig('fig_synthetic_data.png', dpi=200, bbox_inches='tight')
+plt.savefig('fig_binomial_n_variations.png', bbox_inches='tight')
 plt.close()
-print("Saved fig_synthetic_data.png")
+print("Saved fig_binomial_n_variations.png")
 
-# B2. Feature Distributions per Class (SLIDE 8)
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-feature_names = ['Feature 1', 'Feature 2']
-for i, ax in enumerate(axes):
-    ax.hist(X[y == 0, i], bins=30, density=True, alpha=0.5, color='#2563EB', label='Class 0')
-    ax.hist(X[y == 1, i], bins=30, density=True, alpha=0.5, color='#DC2626', label='Class 1')
-    for cls, color in zip([0, 1], ['#2563EB', '#DC2626']):
-        data = X[y == cls, i]
-        mu_fit, sigma_fit = stats.norm.fit(data)
-        x_rng = np.linspace(data.min() - 1, data.max() + 1, 200)
-        ax.plot(x_rng, stats.norm.pdf(x_rng, mu_fit, sigma_fit), 
-                color=color, linewidth=2, linestyle='--')
-    ax.set_title(f'{feature_names[i]} Distribution by Class', fontsize=13, fontweight='bold')
-    ax.set_xlabel(feature_names[i])
-    ax.set_ylabel('Density')
-    ax.legend()
-plt.suptitle('Gaussian NB Assumption: Feature Distributions within Classes', 
-             fontsize=14, fontweight='bold', y=1.02)
+# 3. Slide 7B: Cumulative Distribution Function (CDF) Step Plot
+fig, ax = plt.subplots(figsize=(9, 5))
+n_cdf = 20
+p_cdf = 0.6
+k_cdf = np.arange(0, n_cdf + 1)
+cdf_vals = stats.binom.cdf(k_cdf, n_cdf, p_cdf)
+
+ax.step(k_cdf, cdf_vals, where='post', color=PRIMARY, linewidth=2.5, label=f'Binomial CDF (n={n_cdf}, p={p_cdf})')
+ax.plot(k_cdf, cdf_vals, 'o', color=PRIMARY, markersize=5)
+k_mid = 12
+f_mid = stats.binom.cdf(k_mid, n_cdf, p_cdf)
+ax.axhline(y=0.5, color='gray', linestyle=':', alpha=0.7)
+ax.axvline(x=k_mid, color=DANGER, linestyle='--', alpha=0.7, label=f'Median k={k_mid} (P(X ≤ {k_mid}) = {f_mid:.2f})')
+
+ax.set_xlabel('Successes (k)', fontsize=12)
+ax.set_ylabel('Cumulative Probability F(k) = P(X ≤ k)', fontsize=12)
+ax.set_title('Figure 7B: Cumulative Distribution Function (Discrete Step Curve)', fontsize=13, fontweight='bold')
+ax.set_xticks(range(0, n_cdf + 1, 2))
+ax.set_ylim(-0.02, 1.05)
+ax.legend(fontsize=11)
 plt.tight_layout()
-plt.savefig('fig_feature_distributions.png', dpi=200, bbox_inches='tight')
+plt.savefig('fig_binomial_cdf.png', bbox_inches='tight')
 plt.close()
-print("Saved fig_feature_distributions.png")
+print("Saved fig_binomial_cdf.png")
 
-# B3. Train GNB
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-gnb = GaussianNB()
-gnb.fit(X_train, y_train)
-y_pred = gnb.predict(X_test)
-accuracy = float(accuracy_score(y_test, y_pred))
-print(f"Test Accuracy: {accuracy*100:.2f}%")
+# 4. Slide 8: De Moivre-Laplace Normal Approximation to Binomial
+fig, ax = plt.subplots(figsize=(10, 5.2))
+n_approx = 50
+p_approx = 0.4
+mu_approx = n_approx * p_approx       # 20.0
+var_approx = n_approx * p_approx * (1 - p_approx) # 12.0
+sigma_approx = np.sqrt(var_approx)    # 3.464
 
-# B4. Confusion Matrix (SLIDE 14)
-cm = confusion_matrix(y_test, y_pred)
-fig, ax = plt.subplots(figsize=(6, 5))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-            xticklabels=['Class 0', 'Class 1'],
-            yticklabels=['Class 0', 'Class 1'],
-            annot_kws={'size': 16})
-ax.set_xlabel('Predicted Label', fontsize=13)
-ax.set_ylabel('True Label', fontsize=13)
-ax.set_title('Confusion Matrix — Gaussian Naive Bayes', fontsize=14, fontweight='bold')
+k_vals = np.arange(0, n_approx + 1)
+pmf_vals = stats.binom.pmf(k_vals, n_approx, p_approx)
+ax.bar(k_vals, pmf_vals, width=0.8, color='#93C5FD', edgecolor='#2563EB', alpha=0.7, label=f'Binomial PMF (n={n_approx}, p={p_approx})')
+
+x_norm = np.linspace(5, 35, 300)
+pdf_norm = stats.norm.pdf(x_norm, loc=mu_approx, scale=sigma_approx)
+ax.plot(x_norm, pdf_norm, color=DANGER, linewidth=2.5, label=f'Normal Approximation: N(μ={mu_approx:.1f}, σ²={var_approx:.1f})')
+
+ax.set_xlim(8, 32)
+ax.set_xlabel('Number of Successes (k)', fontsize=12)
+ax.set_ylabel('Probability Density / Mass', fontsize=12)
+ax.set_title('Figure 8: De Moivre–Laplace Theorem: Binomial Converging to Normal Curve', fontsize=13, fontweight='bold')
+ax.legend(fontsize=11)
 plt.tight_layout()
-plt.savefig('fig_confusion_matrix.png', dpi=200, bbox_inches='tight')
+plt.savefig('fig_normal_approximation.png', bbox_inches='tight')
 plt.close()
-print("Saved fig_confusion_matrix.png")
+print("Saved fig_normal_approximation.png")
 
-# B5. Decision Boundary (SLIDE 14)
-h = 0.05
-x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
-y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-Z = gnb.predict(np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
+# 5. Slide 13: 1,000 Sample Simulation vs Theoretical PMF (Mandatory Demo)
+n_sim = 20
+p_sim = 0.6
+N_samples = 1000
 
-fig, ax = plt.subplots(figsize=(10, 7))
-ax.contourf(xx, yy, Z, alpha=0.3, cmap='coolwarm')
-ax.contour(xx, yy, Z, colors='k', linewidths=0.7)
-scatter = ax.scatter(X[:, 0], X[:, 1], c=y, cmap='coolwarm', 
-                     alpha=0.6, edgecolors='w', linewidth=0.5, s=25)
-ax.set_xlabel('Feature 1', fontsize=13)
-ax.set_ylabel('Feature 2', fontsize=13)
-ax.set_title('Gaussian Naive Bayes — Decision Boundary & Data Space', fontsize=14, fontweight='bold')
-plt.colorbar(scatter, label='Class', ticks=[0, 1])
+sim_samples = np.random.binomial(n=n_sim, p=p_sim, size=N_samples)
+sample_mean = float(np.mean(sim_samples))
+sample_var = float(np.var(sim_samples, ddof=1))
+sample_std = float(np.std(sim_samples, ddof=1))
+
+theo_mean = float(n_sim * p_sim)                    # 12.0
+theo_var = float(n_sim * p_sim * (1 - p_sim))       # 4.8
+theo_std = float(np.sqrt(theo_var))                 # 2.19089
+
+fig, ax = plt.subplots(figsize=(10, 5.5))
+bins = np.arange(-0.5, n_sim + 1.5, 1)
+counts, _, _ = ax.hist(sim_samples, bins=bins, density=True, color='#60A5FA', 
+                       edgecolor='white', alpha=0.75, label=f'Simulated Frequencies (N={N_samples})')
+
+k_axis = np.arange(0, n_sim + 1)
+pmf_theo = stats.binom.pmf(k_axis, n_sim, p_sim)
+ax.plot(k_axis, pmf_theo, 'ro-', linewidth=2, markersize=6, label=f'Theoretical PMF (n={n_sim}, p={p_sim})')
+
+ax.set_xlabel('Number of Successes (k)', fontsize=12)
+ax.set_ylabel('Relative Frequency / Probability', fontsize=12)
+ax.set_title('Figure 13: 1,000 Simulated Observations vs Theoretical Binomial PMF', fontsize=13, fontweight='bold')
+ax.set_xticks(range(4, 21, 2))
+ax.set_xlim(3.5, 20.5)
+ax.legend(fontsize=11)
 plt.tight_layout()
-plt.savefig('fig_decision_boundary.png', dpi=200, bbox_inches='tight')
+plt.savefig('fig_binomial_simulation.png', bbox_inches='tight')
 plt.close()
-print("Saved fig_decision_boundary.png")
+print("Saved fig_binomial_simulation.png")
 
-# Save summary stats to json for exact inclusion
-stats_dict = {
+# 6. Slide 14: Applied A/B Testing Distributions
+nA, pA = 1000, 0.10   # Control: 10% conversion
+nB, pB = 1000, 0.13   # Variant: 13% conversion
+
+fig, ax = plt.subplots(figsize=(10, 5))
+kA = np.arange(70, 160)
+kB = np.arange(70, 160)
+
+ax.plot(kA, stats.binom.pmf(kA, nA, pA), color=PRIMARY, linewidth=2.5, label='Layout A (Control): n=1000, p=10% (μ=100)')
+ax.fill_between(kA, stats.binom.pmf(kA, nA, pA), color=PRIMARY, alpha=0.25)
+
+ax.plot(kB, stats.binom.pmf(kB, nB, pB), color=SUCCESS, linewidth=2.5, label='Layout B (Variant): n=1000, p=13% (μ=130)')
+ax.fill_between(kB, stats.binom.pmf(kB, nB, pB), color=SUCCESS, alpha=0.25)
+
+ax.set_xlabel('Conversions out of 1,000 Visitors', fontsize=12)
+ax.set_ylabel('Probability', fontsize=12)
+ax.set_title('Figure 14: A/B Testing Evaluation via Binomial Sampling Distributions', fontsize=13, fontweight='bold')
+ax.legend(fontsize=11)
+plt.tight_layout()
+plt.savefig('fig_ab_testing_distributions.png', bbox_inches='tight')
+plt.close()
+print("Saved fig_ab_testing_distributions.png")
+
+# Save computed metrics for inclusion across markdown, slides, and notebook
+metrics = {
+    "n_sim": n_sim,
+    "p_sim": p_sim,
+    "N_samples": N_samples,
     "sample_mean": round(sample_mean, 4),
-    "theo_mean": theo_mean,
+    "theo_mean": round(theo_mean, 4),
+    "mean_diff": round(abs(sample_mean - theo_mean), 4),
     "sample_var": round(sample_var, 4),
-    "theo_var": theo_var,
+    "theo_var": round(theo_var, 4),
+    "var_diff": round(abs(sample_var - theo_var), 4),
     "sample_std": round(sample_std, 4),
-    "theo_std": theo_std,
-    "accuracy": round(accuracy * 100, 2),
-    "cm": cm.tolist()
+    "theo_std": round(theo_std, 4),
+    "std_diff": round(abs(sample_std - theo_std), 4),
+    "mle_p": round(sample_mean / n_sim, 4)
 }
-with open("metrics.json", "w") as f:
-    json.dump(stats_dict, f, indent=2)
 
-print("\nAll figures generated and metrics saved successfully!")
+with open('metrics_binomial.json', 'w') as f:
+    json.dump(metrics, f, indent=2)
+
+print("\n--- Summary of Simulation Metrics ---")
+print(f"Sample Mean:     {sample_mean:.4f}  (Theoretical: {theo_mean:.4f})  | Error: {abs(sample_mean - theo_mean):.4f}")
+print(f"Sample Variance: {sample_var:.4f}  (Theoretical: {theo_var:.4f})  | Error: {abs(sample_var - theo_var):.4f}")
+print(f"Sample Std Dev:  {sample_std:.4f}  (Theoretical: {theo_std:.4f})  | Error: {abs(sample_std - theo_std):.4f}")
+print(f"MLE p-hat:       {sample_mean / n_sim:.4f}  (True p: {p_sim:.4f})")
+print("All Binomial figures generated and metrics saved successfully!")

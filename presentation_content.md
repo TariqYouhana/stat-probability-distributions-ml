@@ -1,434 +1,196 @@
-# Probability Distributions in Machine Learning and Data Science
+# The Binomial Distribution in Machine Learning & Data Science
 
-> **Group 8 — Probability Distribution Class**
-> *This document accompanies Group 8's presentation on Probability Distributions in ML/Data Science.*
+> **Group 8 — Probability Distributions & Statistical Modeling**  
+> *Comprehensive Theoretical Guide, Mathematical Foundations, and Practical Machine Learning Applications.*
 
 ---
 
 ## 1. Introduction
 
-### What Are Probability Distributions?
+### What is the Binomial Distribution?
+The **Binomial Distribution** is one of the most fundamental discrete probability distributions in classical statistics and modern data science. It describes the probability of obtaining exactly $k$ successes in a fixed sequence of $n$ independent and identically distributed (i.i.d.) Bernoulli trials, where each trial has two mutually exclusive outcomes: Success (conventionally encoded as $1$) or Failure (encoded as $0$).
 
-A **probability distribution** is a mathematical function that describes the likelihood of different outcomes in a random experiment. It tells us *how probabilities are spread* across all possible values of a random variable. In data science, probability distributions are the backbone of statistical modeling — they let us summarize data, quantify uncertainty, and make predictions.
+### Nature: Discrete vs. Continuous
+The Binomial distribution is strictly **discrete**. The random variable $X$ can only take non-negative integer values from the finite support set:
+$$X \in \{0, 1, 2, \dots, n\}$$
+Unlike continuous distributions (such as the Gaussian or Exponential distributions), which assign probabilities over continuous intervals using a Probability Density Function (PDF), the Binomial distribution assigns exact point probabilities to discrete outcome counts using a **Probability Mass Function (PMF)**.
 
-Every time we collect data, that data follows some underlying pattern. Probability distributions give us the language to describe those patterns precisely. Whether we are measuring heights, counting website clicks, or classifying emails as spam, there is a distribution governing the process.
+### Significance in Data Science & Machine Learning
+Modern data science is filled with binary decision points:
+* Did an e-commerce visitor make a purchase or leave? (Conversion Modeling)
+* Did a user click on an ad or scroll past it? (Click-Through-Rate Prediction)
+* Is an incoming financial transaction legitimate or fraudulent? (Fraud Detection)
+* Does a patient exhibit symptoms of a disease? (Clinical Screening)
 
-### Why Do Distributions Matter in Data Science?
-
-Distributions matter because nearly every machine learning algorithm — from linear regression to deep learning — relies on probabilistic assumptions about the data. Understanding distributions helps us:
-
-- **Choose the right model** for a given dataset.
-- **Interpret model outputs** (e.g., predicted probabilities).
-- **Generate synthetic data** for testing and simulation.
-- **Detect anomalies** by identifying data points that are unlikely under the assumed distribution.
-
-### Our Focus: The Gaussian (Normal) Distribution
-
-The **Gaussian distribution** (also called the **Normal distribution**) is the primary focus of this presentation. It is a **continuous** distribution — meaning it describes random variables that can take any real-valued number (e.g., height, temperature, blood pressure). The Gaussian is arguably the most important distribution in all of statistics because:
-
-1. Many natural phenomena are approximately normally distributed.
-2. The **Central Limit Theorem** guarantees that sample means converge to a normal distribution regardless of the original data's shape.
-3. It is the foundation for the **Gaussian Naive Bayes** classifier, a powerful and efficient ML algorithm.
-
-### Supporting Distributions
-
-Alongside the Gaussian, we briefly discuss two **discrete** distributions that play important roles in Naive Bayes classification:
-
-- **Bernoulli Distribution** — models binary outcomes (yes/no, 0/1). Used in **Bernoulli Naive Bayes** for text classification with binary word-presence features.
-- **Multinomial Distribution** — models count data across multiple categories. Used in **Multinomial Naive Bayes** for text classification with word-frequency features.
-
-### Why These Distributions Matter for ML Classification
-
-Together, these three distributions power the entire **Naive Bayes family** of classifiers:
-
-| Distribution | Type | Naive Bayes Variant | Typical Use Case |
-|---|---|---|---|
-| Gaussian | Continuous | Gaussian NB | Continuous measurements (medical data, sensor readings) |
-| Bernoulli | Discrete | Bernoulli NB | Binary features (word present/absent in a document) |
-| Multinomial | Discrete | Multinomial NB | Count features (word frequencies in documents) |
-
-By understanding which distribution fits your data, you can select the right variant of Naive Bayes — and understand *why* it works.
+In all these scenarios, individual observations are binary events. When these events are aggregated over batches, user cohorts, or geographic regions, their sum follows a Binomial distribution. Consequently, the Binomial distribution serves as the mathematical foundation for:
+1. **A/B Testing & Conversion Rate Optimization:** Evaluating whether product interventions yield statistically significant improvements.
+2. **Click-Through-Rate (CTR) Modeling:** Powering the real-time auction engines of Google Ads and Meta.
+3. **Logistic Regression:** Providing the likelihood framework for the most widely used binary classification algorithm in machine learning.
 
 ---
 
 ## 2. Mathematical Explanation
 
-### 2.1 Gaussian (Normal) Distribution — Full Treatment
+### 2.1 The Probability Mass Function (PMF)
+The probability of observing exactly $k$ successes in $n$ independent trials, each with success probability $p$, is given by:
 
-The Gaussian distribution is defined by its **probability density function (PDF)**:
+$$P(X = k) = \binom{n}{k} p^k (1 - p)^{n - k} \quad \text{for } k \in \{0, 1, 2, \dots, n\}$$
 
-$$f(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)$$
+### 2.2 Detailed Explanation of Parameters and Symbols
 
-This is valid for all $x \in (-\infty, +\infty)$.
-
-#### Parameter and Symbol Breakdown
-
-| Symbol | Name | Meaning |
+| Symbol / Term | Formal Mathematical Role | Intuitive Meaning |
 |---|---|---|
-| $x$ | Random variable | The value at which we evaluate the density |
-| $\mu$ (mu) | Mean | The center of the distribution; the "average" value |
-| $\sigma$ (sigma) | Standard deviation | Measures the spread of the distribution around the mean |
-| $\sigma^2$ | Variance | The square of the standard deviation; a measure of dispersion |
-| $\pi$ | Pi | The mathematical constant $\approx 3.14159$ |
-| $e$ | Euler's number | The base of the natural logarithm $\approx 2.71828$ |
-| $\exp(\cdot)$ | Exponential function | Shorthand for $e^{(\cdot)}$ |
+| $X$ | Discrete random variable | The total count of successful trials observed |
+| $n \in \mathbb{N}$ | Sample size / trial parameter | The total number of independent trials conducted |
+| $p \in [0, 1]$ | Success probability parameter | The probability of success on any individual single trial |
+| $1 - p = q$ | Complementary probability | The probability of failure on any individual single trial |
+| $k \in \{0, \dots, n\}$ | Realized outcome | The specific number of successes being evaluated |
+| $p^k (1 - p)^{n - k}$ | Sequence probability | Probability of observing one specific arrangement of $k$ successes and $n-k$ failures |
+| $\binom{n}{k} = \frac{n!}{k!(n - k)!}$ | Binomial coefficient ("$n$ choose $k$") | Total number of distinct ways to choose $k$ successful trials out of $n$ total trials |
 
-The term $\frac{1}{\sigma\sqrt{2\pi}}$ is a **normalizing constant** — it ensures the total area under the curve equals 1 (as required for any valid probability distribution).
+### 2.3 Proof that the PMF Integrates (Sums) to 1
+For any valid probability distribution, the sum of probabilities across all possible values must equal $1.0$. Applying the algebraic **Binomial Theorem**:
+$$\sum_{k=0}^n \binom{n}{k} a^k b^{n-k} = (a + b)^n$$
+Substituting $a = p$ and $b = 1 - p$:
+$$\sum_{k=0}^n P(X = k) = \sum_{k=0}^n \binom{n}{k} p^k (1 - p)^{n - k} = \big(p + (1 - p)\big)^n = (1)^n = 1.0 \quad \blacksquare$$
 
-The term $\exp\!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)$ controls the **shape**: it assigns highest density to values near $\mu$ and exponentially decreasing density as $x$ moves away from $\mu$.
+### 2.4 Derivation of the Mean (Expected Value)
+Let $X \sim \text{Binomial}(n, p)$. We can represent $X$ as the sum of $n$ independent Bernoulli indicator variables:
+$$X = \sum_{i=1}^n Y_i, \quad \text{where } Y_i \sim \text{Bernoulli}(p)$$
+For each indicator variable $Y_i$:
+$$E[Y_i] = 1 \cdot P(Y_i = 1) + 0 \cdot P(Y_i = 0) = p$$
+By the **linearity of expectation** (which holds regardless of independence):
+$$E[X] = E\left[\sum_{i=1}^n Y_i\right] = \sum_{i=1}^n E[Y_i] = \sum_{i=1}^n p = n \cdot p$$
 
-#### Summary Statistics
+$$\mathbf{E[X] = \mu = n \cdot p}$$
 
-- **Mean (Expected Value):** $E[X] = \mu$
-- **Variance:** $\text{Var}(X) = \sigma^2$
-- **Standard Deviation:** $\text{SD}(X) = \sigma$
+### 2.5 Derivation of Variance and Standard Deviation
+For a single Bernoulli trial $Y_i$:
+$$E[Y_i^2] = 1^2 \cdot p + 0^2 \cdot (1 - p) = p$$
+$$Var(Y_i) = E[Y_i^2] - (E[Y_i])^2 = p - p^2 = p(1 - p)$$
+Because the trials are **mutually independent**, the covariance terms are strictly zero ($Cov(Y_i, Y_j) = 0$ for $i \ne j$). Thus:
+$$Var(X) = Var\left(\sum_{i=1}^n Y_i\right) = \sum_{i=1}^n Var(Y_i) = \sum_{i=1}^n p(1 - p) = n \cdot p(1 - p)$$
 
-We write $X \sim \mathcal{N}(\mu, \sigma^2)$ to denote that $X$ follows a Normal distribution with mean $\mu$ and variance $\sigma^2$.
+$$\mathbf{Var(X) = \sigma^2 = n \cdot p(1 - p)}$$
+$$\mathbf{\sigma = \sqrt{n \cdot p(1 - p)}}$$
 
-#### Key Properties
-
-1. **Symmetry:** The Gaussian curve is perfectly symmetric about $x = \mu$. The left and right halves are mirror images.
-
-2. **Bell-Shaped Curve:** The PDF produces the famous "bell curve" — peaked at the center and tapering off in both tails.
-
-3. **The 68–95–99.7 Rule (Empirical Rule):**
-   - Approximately **68%** of observations fall within $\mu \pm 1\sigma$
-   - Approximately **95%** of observations fall within $\mu \pm 2\sigma$
-   - Approximately **99.7%** of observations fall within $\mu \pm 3\sigma$
-
-   This rule provides a quick way to assess how "unusual" a data point is.
-
-4. **Central Limit Theorem (CLT) Connection:** The CLT states that the sampling distribution of the sample mean $\bar{X}$ approaches a normal distribution as the sample size $n$ increases, regardless of the original population's distribution:
-
-   $$\bar{X} \xrightarrow{d} \mathcal{N}\!\left(\mu, \frac{\sigma^2}{n}\right) \quad \text{as } n \to \infty$$
-
-   This is why the Gaussian distribution is so prevalent — it emerges naturally whenever we average many independent observations.
-
-5. **The Standard Normal:** When $\mu = 0$ and $\sigma = 1$, we get the **standard normal distribution** $Z \sim \mathcal{N}(0, 1)$. Any normal variable can be standardized via:
-
-   $$Z = \frac{X - \mu}{\sigma}$$
-
-#### Assumptions
-
-For the Gaussian distribution to be an appropriate model, we generally assume:
-
-- The data is **continuous** (not counts or categories).
-- The data is roughly **symmetric** around the mean.
-- Most values **cluster near the mean**, with fewer observations in the tails.
-- There are no heavy outliers or skewness that would violate the bell-curve shape.
+### 2.6 Core Assumptions (The BINS Criteria)
+For a data-generating process to legitimately follow a Binomial distribution, four conditions must hold:
+1. **B — Binary Outcomes:** Every trial must yield exactly one of two mutually exclusive outcomes: Success or Failure (e.g., Click / No Click, Churn / Retained).
+2. **I — Independent Trials:** The outcome of trial $i$ must not influence or alter the outcome probability of trial $j$ ($P(E_i \cap E_j) = P(E_i)P(E_j)$).
+3. **N — Number of Trials Fixed:** The total number of trials $n$ must be predetermined and fixed before the experiment begins.
+4. **S — Same Probability:** The probability of success $p$ must remain strictly constant across every single trial.
 
 ---
 
-### 2.2 Bernoulli Distribution — Lighter Treatment
+## 3. Graphical Representation & Parameter Dynamics
 
-The **Bernoulli distribution** models a single trial with exactly two outcomes: success ($k = 1$) or failure ($k = 0$).
+### 3.1 Shape Dynamics: Effect of Changing Probability $p$
+The parameter $p$ governs the **location** and **skewness** of the distribution:
+* **$p < 0.5$ (Right-Skewed):** When success is relatively rare, probability mass concentrates near $0$. The distribution displays a positive skew with a long tail stretching toward $n$.
+* **$p = 0.5$ (Symmetric):** When success and failure are equally likely, the distribution is perfectly symmetric around its mean $\mu = 0.5n$. Mode, median, and mean coincide.
+* **$p > 0.5$ (Left-Skewed):** When success is common, probability mass clusters near $n$. The distribution displays a negative skew with a tail trailing toward $0$.
 
-#### Probability Mass Function (PMF)
+The skewness is mathematically formulated as:
+$$\gamma_1 = \frac{1 - 2p}{\sqrt{np(1 - p)}}$$
 
-$$P(X = k) = p^{k}(1 - p)^{1 - k}, \quad k \in \{0, 1\}$$
+### 3.2 Scale Dynamics: Effect of Changing Trial Count $n$
+As the number of trials $n$ increases:
+1. The absolute variance $\sigma^2 = np(1-p)$ grows, causing the distribution to spread out along the integer axis.
+2. The relative dispersion (the coefficient of variation $CV = \frac{\sigma}{\mu} = \sqrt{\frac{1-p}{np}}$) shrinks proportionally to $1/\sqrt{n}$. As a result, the observed sample proportion $\hat{p} = X/n$ tightly concentrates around the true parameter $p$ (demonstrating the Weak Law of Large Numbers).
 
-Where $p$ is the probability of success ($0 \le p \le 1$).
+### 3.3 The Cumulative Distribution Function (CDF)
+The CDF gives the probability that the random variable $X$ takes a value less than or equal to $k$:
+$$F(k) = P(X \le k) = \sum_{i=0}^k \binom{n}{i} p^i (1 - p)^{n - i}$$
+Because $X$ is discrete, $F(k)$ is a **step function** (staircase plot) that jumps by $P(X = k)$ at each integer $k$ and remains constant in between.
 
-This expands to:
-
-- $P(X = 1) = p$ (success)
-- $P(X = 0) = 1 - p$ (failure)
-
-#### Summary Statistics
-
-- **Mean:** $E[X] = p$
-- **Variance:** $\text{Var}(X) = p(1 - p)$
-
-#### When to Use It
-
-The Bernoulli distribution applies whenever you have a **binary outcome**: a coin flip, whether an email is spam or not, whether a word appears in a document or not. In Bernoulli Naive Bayes, each feature is treated as a Bernoulli random variable (present = 1, absent = 0).
-
----
-
-### 2.3 Multinomial Distribution — Lighter Treatment
-
-The **Multinomial distribution** generalizes the Bernoulli to scenarios with **multiple categories**. It models the counts of outcomes across $k$ categories over $n$ independent trials.
-
-#### Probability Mass Function (PMF)
-
-$$P(X_1 = x_1, \ldots, X_k = x_k) = \frac{n!}{x_1!\, x_2!\, \cdots\, x_k!}\, p_1^{x_1}\, p_2^{x_2}\, \cdots\, p_k^{x_k}$$
-
-where:
-
-- $n = x_1 + x_2 + \cdots + x_k$ is the total number of trials
-- $p_i$ is the probability of category $i$, with $\sum_{i=1}^{k} p_i = 1$
-- $x_i$ is the observed count for category $i$
-
-#### Summary Statistics (for each category $i$)
-
-- **Mean:** $E[X_i] = n \cdot p_i$
-- **Variance:** $\text{Var}(X_i) = n \cdot p_i(1 - p_i)$
-
-#### When to Use It
-
-The Multinomial distribution is appropriate when data represents **counts across multiple categories** — for example, word frequencies in a document. In Multinomial Naive Bayes, the features represent how often each word appears, not just whether it appears.
+### 3.4 The De Moivre–Laplace Normal Approximation
+A celebrated result in probability theory: when $n$ is sufficiently large, the discrete Binomial distribution smoothly approaches a continuous Normal distribution:
+$$\text{Binomial}(n, p) \;\xrightarrow{d}\; \mathcal{N}\big(\mu = np, \;\sigma^2 = np(1 - p)\big) \quad \text{as } n \to \infty$$
+**Standard Rule of Thumb:** The approximation is reliable when:
+$$n \cdot p \ge 10 \quad \text{and} \quad n \cdot (1 - p) \ge 10$$
+When calculating probabilities using the continuous Normal curve, statisticians apply a **continuity correction** of $\pm 0.5$ to account for rounding discrete bars into continuous area:
+$$P(a \le X \le b) \approx P\left(a - 0.5 \le X_{\text{norm}} \le b + 0.5\right)$$
 
 ---
 
-## 3. Graphical Representation
+## 4. Likelihood & Maximum Likelihood Estimation (MLE)
 
-### The Gaussian Bell Curve
+In practical data science, the true success probability $p$ is almost never known in advance. Instead, we observe $k$ successes in $n$ trials and must estimate $p$.
 
-The Gaussian PDF produces the iconic **bell curve**:
+### Derivation of the MLE Estimator:
+1. The Likelihood function treating $p$ as variable given observed data is:
+   $$L(p | k) = \binom{n}{k} p^k (1 - p)^{n - k}$$
+2. The Log-Likelihood $\ell(p) = \ln L(p | k)$ is:
+   $$\ell(p) = \ln\binom{n}{k} + k \ln(p) + (n - k) \ln(1 - p)$$
+3. Differentiating with respect to $p$:
+   $$\frac{d\ell(p)}{dp} = \frac{k}{p} - \frac{n - k}{1 - p}$$
+4. Setting the derivative to zero to find the maximum:
+   $$\frac{k}{p} = \frac{n - k}{1 - p} \implies k(1 - p) = p(n - k) \implies k - kp = np - kp \implies k = np$$
+   $$\mathbf{\hat{p}_{\text{MLE}} = \frac{k}{n} = \frac{\text{Total Observed Successes}}{\text{Total Number of Trials}}}$$
 
-- It is **unimodal** — there is a single peak at $x = \mu$.
-- It is **symmetric** — the curve is a mirror image on either side of $\mu$.
-- The tails extend infinitely in both directions but approach zero, meaning extreme values are possible but increasingly unlikely.
-
-### Effect of Parameters on the Curve Shape
-
-**Changing $\mu$ (the mean):**
-- Shifting $\mu$ to the right moves the entire bell curve to the right along the $x$-axis.
-- Shifting $\mu$ to the left moves it to the left.
-- The *shape* of the curve (its width and height) does not change — only its **position** shifts.
-
-**Changing $\sigma$ (the standard deviation):**
-- A **smaller** $\sigma$ produces a taller, narrower curve — the data is tightly concentrated around $\mu$.
-- A **larger** $\sigma$ produces a shorter, wider curve — the data is more spread out.
-- The area under the curve always remains equal to 1.
-
-For example:
-- $\mathcal{N}(0, 0.5^2)$ — tall and narrow, centered at 0
-- $\mathcal{N}(0, 1)$ — the standard normal
-- $\mathcal{N}(0, 2^2)$ — short and wide, centered at 0
-
-### The Cumulative Distribution Function (CDF)
-
-The CDF of the Gaussian, $\Phi(x)$, gives the probability that a random variable $X$ is less than or equal to $x$:
-
-$$\Phi(x) = P(X \le x) = \int_{-\infty}^{x} f(t)\, dt$$
-
-Graphically, the CDF is an **S-shaped (sigmoid) curve** that:
-
-- Starts near 0 for very small $x$ (far left tail)
-- Passes through 0.5 at $x = \mu$ (the median equals the mean)
-- Approaches 1 for very large $x$ (far right tail)
-
-The CDF is useful for computing probabilities like $P(a \le X \le b) = \Phi(b) - \Phi(a)$.
-
-### Bernoulli Bar Plot
-
-The Bernoulli distribution, being discrete with only two outcomes, is best visualized as a **bar plot** with two bars:
-- One bar at $k = 0$ with height $1 - p$
-- One bar at $k = 1$ with height $p$
-
-> **Note:** The actual plots (histograms, bell curves, CDF, parameter comparisons, and bar plots) are generated in the accompanying **Jupyter notebook (Part A)**. See the notebook for the full visual demonstration.
+This confirms that the natural empirical sample proportion is mathematically optimal under Maximum Likelihood theory: it is unbiased ($E[\hat{p}] = p$) and achieves the Cramér–Rao Lower Bound.
 
 ---
 
-## 4. Real-life Applications
+## 5. Real-World Applications in Data Science & Machine Learning
 
-### Example 1: Email Spam Filtering Using Naive Bayes
+### Application 1: A/B Testing in Digital Product Analytics
+Online controlled experiments (A/B testing) determine whether product changes (e.g., checkout redesigns, algorithmic recommendation carousels) produce genuine conversion uplifts.
+* **Setup:** Visitors are randomly allocated to Control ($A$) or Treatment ($B$).
+* **Model:** $X_A \sim \text{Binomial}(n_A, p_A)$ and $X_B \sim \text{Binomial}(n_B, p_B)$.
+* **Statistical Test:** Data scientists perform a two-proportion pooled $Z$-test to verify if $p_B > p_A$ with statistical significance ($p$-value $< 0.05$).
 
-**Problem:** Given an incoming email, classify it as **spam** or **not spam** (ham).
+### Application 2: Click-Through-Rate (CTR) Modeling in Ad Tech
+Digital ad platforms (Google Ads, Meta) operate real-time Vickrey-Clarke-Groves (VCG) and generalized second-price auctions.
+* **Mechanism:** When an ad is displayed $n$ times (impressions), clicks follow $k \sim \text{Binomial}(n, \text{pCTR})$.
+* **Expected Revenue:** The platform ranks ads by expected revenue: $\text{Expected Value} = n \times \text{pCTR} \times \text{Bid Price}$.
+* **Poisson Convergence:** When impressions reach billions and click probability is small ($p < 0.01$), the Binomial smoothly transitions into a Poisson distribution ($\lambda = np$).
 
-**How it works:**
-
-1. Each email is converted into a feature vector based on the words it contains.
-2. **Bernoulli Naive Bayes** treats each word as a binary feature: is the word *present* (1) or *absent* (0) in the email? The presence/absence of each word is modeled as a Bernoulli random variable.
-3. **Multinomial Naive Bayes** treats each word as a count feature: how many *times* does each word appear? The distribution of word counts across the vocabulary follows a multinomial distribution.
-4. Using Bayes' theorem, the classifier computes the probability of "spam" vs. "ham" given the observed word features and picks the class with the higher probability.
-
-**Why these distributions are appropriate:**
-
-- Word presence (yes/no) is inherently a **binary** outcome → Bernoulli is a natural fit.
-- Word frequency (how often a word occurs) is **count data** across many categories (words) → Multinomial is a natural fit.
-
-**Data Science impact:** Naive Bayes spam filters are fast, scalable, and surprisingly accurate. They power spam detection in email services worldwide.
-
-### Example 2: Medical Diagnosis Using Gaussian Naive Bayes
-
-**Problem:** Given a patient's clinical measurements, predict whether they have a particular disease (e.g., diabetes).
-
-**How it works:**
-
-1. Features include continuous measurements such as **blood pressure**, **blood glucose level**, **BMI**, and **age**.
-2. Within each class (disease vs. no disease), these measurements are assumed to follow a **Gaussian distribution**.
-3. **Gaussian Naive Bayes** estimates the mean $\mu$ and variance $\sigma^2$ of each feature for each class from the training data.
-4. For a new patient, the classifier computes the likelihood of their measurements under each class's Gaussian model, applies Bayes' theorem, and assigns the class with the highest posterior probability.
-
-**Why the Gaussian distribution is appropriate:**
-
-- Physiological measurements like blood pressure and glucose are **continuous** values.
-- They tend to be **approximately normally distributed** in a healthy population (and separately within a diseased population).
-- The bell-curve assumption lets us compute likelihoods efficiently with just two parameters ($\mu$ and $\sigma^2$) per feature per class.
-
-**Data Science impact:** Gaussian NB is used as a fast baseline classifier in medical diagnostics, bioinformatics, and any domain where features are continuous and roughly normally distributed.
+### Application 3: The Engine of Logistic Regression
+Logistic Regression is the foundational algorithm for binary classification in machine learning.
+* **The Model:** Instead of assuming constant $p$, it models the log-odds (logit link) as a linear combination of input features $x$:
+  $$\ln\left(\frac{p(x)}{1 - p(x)}\right) = \beta_0 + \beta_1 x_1 + \dots + \beta_d x_d = \beta^T x$$
+* Inverting this equation produces the standard **Sigmoid function**:
+  $$p(x) = \sigma(\beta^T x) = \frac{1}{1 + e^{-\beta^T x}}$$
+* **Loss Function Connection:** The Binary Cross-Entropy loss function used to train neural networks and logistic regression is nothing other than the negative log-likelihood of independent Binomial trials!
 
 ---
 
-## 5. Practical Demonstration Overview
+## 6. Practical Demonstration Overview (Python Simulation)
 
-The practical component of this presentation is implemented in a **Jupyter notebook** structured in two parts.
+To fulfill the mandatory practical requirements, we conducted a simulation in Python:
+* **Configuration:** $n = 20$ trials, $p = 0.60$ true success rate, $N = 1,000$ simulated batches.
+* **Generated Code:** `generate_figures.py` using `numpy.random.binomial(n=20, p=0.6, size=1000)`.
 
-### Part A: Exploring the Gaussian Distribution
+### Empirical vs. Theoretical Moment Comparison Table:
+| Metric | Theoretical Value | Sample Simulated ($N=1,000$) | Absolute Error | Relative Error |
+|---|---|---|---|---|
+| **Mean ($\mu$)** | **12.0000** | **12.0720** | **0.0720** | **0.60%** |
+| **Variance ($\sigma^2$)** | **4.8000** | **4.8076** | **0.0076** | **0.16%** |
+| **Std Dev ($\sigma$)** | **2.1909** | **2.1926** | **0.0017** | **0.08%** |
+| **MLE Parameter ($\hat{p}$)** | **0.6000** | **0.6036** | **0.0036** | **0.60%** |
 
-In Part A, we demonstrate the properties of the Gaussian distribution through simulation and visualization:
-
-1. **Random Sampling:** Generate **1,000+ random observations** from a Gaussian distribution with known parameters (e.g., $\mu = 0$, $\sigma = 1$) using `numpy.random.normal()`.
-
-2. **Histogram with Theoretical Overlay:** Plot a histogram of the simulated data and overlay the **theoretical PDF** curve using `scipy.stats.norm.pdf()`. This visually confirms that the simulated data follows the expected bell-curve shape.
-
-3. **Sample vs. Theoretical Statistics:** Calculate and compare:
-   - Sample mean ($\bar{x}$) vs. theoretical mean ($\mu$)
-   - Sample variance ($s^2$) vs. theoretical variance ($\sigma^2$)
-   - As $n$ grows large, the sample statistics should closely match the theoretical values.
-
-4. **CDF Visualization:** Plot the cumulative distribution function using `scipy.stats.norm.cdf()` to show the S-shaped curve and demonstrate probability calculations.
-
-5. **Parameter Effect Demonstration:** Plot multiple Gaussian curves with different $\mu$ and $\sigma$ values on the same axes to illustrate how parameters affect the shape and position of the distribution.
-
-### Part B: Building a Gaussian Naive Bayes Classifier
-
-In Part B, we apply the Gaussian distribution to a real machine learning task:
-
-1. **Synthetic Dataset Generation:** Use `numpy` to generate a synthetic dataset with:
-   - **2 classes** (e.g., Class 0 and Class 1)
-   - **2 features** per observation (so we can visualize decision boundaries in 2D)
-   - Each class's features are drawn from Gaussian distributions with different means
-
-2. **Model Training:** Train a `GaussianNB` classifier from `sklearn.naive_bayes` on the training data.
-
-3. **Accuracy Evaluation:** Report the classification accuracy on a held-out test set.
-
-4. **Decision Boundary Visualization:** Plot the decision boundary — the line (or curve) that separates the two classes — overlaid on the data points, using `matplotlib`.
-
-### Libraries Used
-
-- `scipy.stats` — for Gaussian PDF, CDF, and statistical functions
-- `sklearn.naive_bayes` — for the GaussianNB classifier
-- `matplotlib` — for plotting histograms, curves, and decision boundaries
-- `seaborn` — for enhanced statistical visualizations
-- `numpy` — for random number generation and numerical computations
+### Interpretation:
+With $1,000$ observations, the empirical sample mean deviates by merely $0.60\%$ from ground truth, and the sample variance deviates by only $0.16\%$. This rigorously demonstrates the **Weak Law of Large Numbers (WLLN)** and verifies that computational random generation aligns with statistical theory.
 
 ---
 
-## 6. Gaussian Naive Bayes Classifier
+## 7. Critical Evaluation & Limitations
 
-### Bayes' Theorem — The Foundation
-
-At the heart of every Naive Bayes classifier is **Bayes' theorem**:
-
-$$P(C \mid X) = \frac{P(X \mid C) \cdot P(C)}{P(X)}$$
-
-Where:
-
-| Term | Name | Meaning |
-|---|---|---|
-| $P(C \mid X)$ | **Posterior** | Probability of class $C$ given the observed features $X$ |
-| $P(X \mid C)$ | **Likelihood** | Probability of observing features $X$ given class $C$ |
-| $P(C)$ | **Prior** | Prior probability of class $C$ (before seeing the data) |
-| $P(X)$ | **Evidence** | Total probability of observing features $X$ (a normalizing constant) |
-
-The classifier assigns the class $C^*$ that maximizes the posterior:
-
-$$C^* = \arg\max_{C} \; P(X \mid C) \cdot P(C)$$
-
-(We can drop $P(X)$ from the denominator because it is the same for all classes.)
-
-### The "Naive" Assumption
-
-The key simplification that makes Naive Bayes computationally efficient is the **conditional independence assumption**: given the class label, all features are assumed to be **independent** of each other.
-
-If $X = (x_1, x_2, \ldots, x_d)$ is a $d$-dimensional feature vector, then:
-
-$$P(X \mid C) = P(x_1 \mid C) \cdot P(x_2 \mid C) \cdot \ldots \cdot P(x_d \mid C) = \prod_{i=1}^{d} P(x_i \mid C)$$
-
-This is "naive" because in practice, features are rarely truly independent. For example, a patient's blood pressure and BMI are likely correlated. Nevertheless, this assumption works surprisingly well in many applications.
-
-### How Gaussian NB Models the Likelihood
-
-In **Gaussian Naive Bayes**, each feature $x_i$ within each class $C$ is assumed to follow a **Gaussian (Normal) distribution**:
-
-$$P(x_i \mid C) = \frac{1}{\sigma_{iC}\sqrt{2\pi}} \exp\!\left(-\frac{(x_i - \mu_{iC})^2}{2\sigma_{iC}^2}\right)$$
-
-Where:
-- $\mu_{iC}$ is the mean of feature $i$ for class $C$
-- $\sigma_{iC}^2$ is the variance of feature $i$ for class $C$
-
-So for $d$ features and $k$ classes, the model stores $2 \times d \times k$ parameters (one mean and one variance per feature per class).
-
-### Maximum Likelihood Estimation (MLE)
-
-The parameters $\mu_{iC}$ and $\sigma_{iC}^2$ are estimated from the training data using **Maximum Likelihood Estimation (MLE)**:
-
-$$\hat{\mu}_{iC} = \frac{1}{n_C} \sum_{j \in C} x_{ij}$$
-
-$$\hat{\sigma}_{iC}^2 = \frac{1}{n_C} \sum_{j \in C} (x_{ij} - \hat{\mu}_{iC})^2$$
-
-Where $n_C$ is the number of training samples in class $C$, and the sums are over all samples $j$ belonging to class $C$.
-
-In plain English: **the mean is just the average of that feature for samples in that class**, and **the variance is the average squared deviation from that mean**.
-
-### Classification Workflow
-
-1. **Training:** For each class $C$ and each feature $i$, compute $\hat{\mu}_{iC}$ and $\hat{\sigma}_{iC}^2$ from training data.
-2. **Prediction:** For a new observation $X = (x_1, \ldots, x_d)$:
-   - Compute $P(C) \cdot \prod_{i=1}^{d} P(x_i \mid C)$ for each class $C$
-   - Assign the class with the **highest value**
-
-### Comparison: Gaussian NB vs. Bernoulli NB vs. Multinomial NB
-
-| Aspect | Gaussian NB | Bernoulli NB | Multinomial NB |
-|---|---|---|---|
-| **Feature Type** | Continuous (real-valued) | Binary (0 or 1) | Counts (non-negative integers) |
-| **Distribution Assumed** | Gaussian | Bernoulli | Multinomial |
-| **Likelihood Model** | $P(x_i \mid C) = \mathcal{N}(\mu_{iC}, \sigma_{iC}^2)$ | $P(x_i \mid C) = p_{iC}^{x_i}(1-p_{iC})^{1-x_i}$ | $P(\mathbf{x} \mid C) \propto \prod p_{iC}^{x_i}$ |
-| **Typical Application** | Medical diagnosis, sensor data | Document classification (word presence) | Document classification (word counts) |
-| **When to Use** | Features are continuous and roughly normal | Features are binary indicators | Features are frequency counts |
-
-**Rule of thumb:**
-- Continuous features (e.g., height, blood pressure) → **Gaussian NB**
-- Binary features (e.g., word present/absent) → **Bernoulli NB**
-- Count features (e.g., word frequency) → **Multinomial NB**
-
----
-
-## 7. Conclusion
-
-### Key Characteristics of the Gaussian Distribution
-
-- It is a **continuous** distribution defined by two parameters: the mean $\mu$ and the variance $\sigma^2$.
-- Its PDF produces the symmetric **bell curve**, with the peak at $\mu$.
-- The **68–95–99.7 rule** provides a quick summary of how data spreads around the mean.
-- Thanks to the **Central Limit Theorem**, it appears naturally in many real-world settings.
-- It is computationally convenient: only two parameters need to be estimated per feature per class.
-
-### When to Use Each Naive Bayes Variant
-
-| Data Type | Recommended Variant |
-|---|---|
-| Continuous features (approximately normal) | Gaussian NB |
-| Binary features (presence/absence) | Bernoulli NB |
-| Count features (frequencies) | Multinomial NB |
-
-### Limitations to Keep in Mind
-
-1. **The "naive" independence assumption** rarely holds in real-world data. Features are often correlated (e.g., blood pressure and cholesterol). Despite this, Naive Bayes often performs well in practice — it gets the *ranking* of classes right even when the exact probabilities are poorly calibrated.
-
-2. **Gaussian NB assumes normality** of features within each class. If the features are heavily skewed, multimodal, or have heavy tails, the Gaussian assumption may be a poor fit. In such cases, data transformation (e.g., log-transform) or a different model may be more appropriate.
-
-3. **Small sample sizes** can lead to poor estimates of $\mu$ and $\sigma^2$, especially for rare classes.
-
-Despite these limitations, Naive Bayes classifiers remain a **fast, interpretable, and effective** baseline for many classification tasks in data science.
+While the Binomial distribution is versatile, real-world data science frequently encounters scenarios where its core assumptions fail:
+1. **Violation of Independence:**
+   * *Example:* In social media platforms and viral marketing, if User 1 downloads an app, their friends are dramatically more likely to download it. The independence assumption breaks down.
+2. **Probability Drift (Non-Constant $p$):**
+   * *Example:* In web analytics, conversion rates vary heavily by hour of the day, weekend vs. weekday, or device type (Mobile vs. Desktop). Treating all visitors as having identical $p$ causes model misspecification.
+3. **Overdispersion:**
+   * When variance in real data exceeds $np(1-p)$ due to unobserved heterogeneity, data scientists replace the Binomial distribution with the **Beta-Binomial distribution** (treating $p$ as a random variable following a Beta prior).
 
 ---
 
 ## 8. References
 
-1. Wackerly, D. D., Mendenhall, W., & Scheaffer, R. L. (2014). *Mathematical Statistics with Applications* (7th ed.). Cengage Learning. — Comprehensive treatment of probability distributions, expected values, and the Central Limit Theorem.
-
-2. Scikit-learn Developers. (2024). *sklearn.naive_bayes.GaussianNB — scikit-learn documentation*. Retrieved from [https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html) — Official documentation for the Gaussian Naive Bayes implementation in Python.
-
-3. Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer. — Foundational text covering probabilistic models, Bayesian classification, and the role of the Gaussian distribution in machine learning.
-
-4. Murphy, K. P. (2012). *Machine Learning: A Probabilistic Perspective*. MIT Press. — In-depth coverage of Naive Bayes classifiers and their distributional assumptions.
-
----
-
-*Prepared by Group 8 — Probability Distributions in Machine Learning and Data Science*
+1. **Wackerly, D., Mendenhall, W., & Scheaffer, R.** (2008). *Mathematical Statistics with Applications* (7th ed.). Cengage Learning.
+2. **Montgomery, D. C., & Runger, G. C.** (2018). *Applied Statistics and Probability for Engineers* (7th ed.). John Wiley & Sons.
+3. **Bishop, C. M.** (2006). *Pattern Recognition and Machine Learning*. Springer Information Science and Statistics.
+4. **Kohavi, R., Tang, D., & Xu, Y.** (2020). *Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing*. Cambridge University Press.

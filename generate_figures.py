@@ -207,3 +207,138 @@ print(f"Sample Variance: {sample_var:.4f}  (Theoretical: {theo_var:.4f})  | Erro
 print(f"Sample Std Dev:  {sample_std:.4f}  (Theoretical: {theo_std:.4f})  | Error: {abs(sample_std - theo_std):.4f}")
 print(f"MLE p-hat:       {sample_mean / n_sim:.4f}  (True p: {p_sim:.4f})")
 print("All Binomial figures generated and metrics saved successfully!")
+
+print("\n--- Generating Negative Binomial Figures ---")
+
+# 7. Slide 10: Negative Binomial PMF Variations (varying p and varying r)
+fig, axes = plt.subplots(1, 2, figsize=(14, 4.8))
+
+# Panel 1: Fixed r=3, varying p = [0.3, 0.5, 0.7]
+r_fixed = 3
+k_nb1 = np.arange(0, 21)
+for p_val, color, lbl in zip([0.3, 0.5, 0.7], [DANGER, PRIMARY, SUCCESS],
+                              ['p = 0.3 (High failure count)', 'p = 0.5 (Balanced)', 'p = 0.7 (Low failure count)']):
+    pmf_nb = stats.nbinom.pmf(k_nb1, r_fixed, p_val)
+    axes[0].plot(k_nb1, pmf_nb, 'o-', color=color, linewidth=2, markersize=5, label=lbl)
+axes[0].set_title(f'Varying Success Probability p (Fixed r = {r_fixed} successes)', fontsize=12, fontweight='bold')
+axes[0].set_xlabel('Number of Failures Before r-th Success (k)', fontsize=11)
+axes[0].set_ylabel('Probability P(X = k)', fontsize=11)
+axes[0].legend(fontsize=10)
+
+# Panel 2: Fixed p=0.5, varying r = [1, 5, 10]
+p_fixed = 0.5
+k_nb2 = np.arange(0, 26)
+for r_val, color, lbl in zip([1, 5, 10], [ORANGE, PRIMARY, ACCENT],
+                              ['r = 1 (Geometric case)', 'r = 5 (Moderate)', 'r = 10 (More symmetric)']):
+    pmf_nb = stats.nbinom.pmf(k_nb2, r_val, p_fixed)
+    axes[1].plot(k_nb2, pmf_nb, 'o-', color=color, linewidth=2, markersize=5, label=lbl)
+axes[1].set_title(f'Varying Target Successes r (Fixed p = {p_fixed})', fontsize=12, fontweight='bold')
+axes[1].set_xlabel('Number of Failures Before r-th Success (k)', fontsize=11)
+axes[1].set_ylabel('Probability P(X = k)', fontsize=11)
+axes[1].legend(fontsize=10)
+
+plt.suptitle('Figure 10: Negative Binomial Shape Dynamics (Right-Skewed & Overdispersed)', fontsize=14, fontweight='bold', y=1.03)
+plt.tight_layout()
+plt.savefig('fig_negbinom_pmf_variations.png', bbox_inches='tight')
+plt.close()
+print("Saved fig_negbinom_pmf_variations.png")
+
+# 8. Slide 11: Side-by-Side Comparison: Positive Binomial vs Negative Binomial
+fig, axes = plt.subplots(1, 2, figsize=(14, 4.8))
+
+# Positive Binomial(n=20, p=0.4)
+n_comp, p_comp = 20, 0.4
+k_pos = np.arange(0, n_comp + 1)
+pmf_pos = stats.binom.pmf(k_pos, n_comp, p_comp)
+mu_pos = n_comp * p_comp
+var_pos = n_comp * p_comp * (1 - p_comp)
+axes[0].bar(k_pos, pmf_pos, color=PRIMARY, alpha=0.85, edgecolor='white')
+axes[0].axvline(mu_pos, color=DANGER, linestyle='--', linewidth=2, label=f'Mean μ = {mu_pos:.1f}, Var σ² = {var_pos:.1f} (< μ)')
+axes[0].set_title('Positive Binomial(n=20, p=0.4)\nFixed Trials → Count Successes (Underdispersed)', fontsize=11.5, fontweight='bold')
+axes[0].set_xlabel('Successes (k) ∈ {0, ..., 20}', fontsize=11)
+axes[0].set_ylabel('Probability P(X = k)', fontsize=11)
+axes[0].legend(fontsize=9.5)
+
+# Negative Binomial(r=5, p=0.4)
+r_comp = 5
+k_neg = np.arange(0, 26)
+pmf_neg = stats.nbinom.pmf(k_neg, r_comp, p_comp)
+mu_neg = r_comp * (1 - p_comp) / p_comp
+var_neg = r_comp * (1 - p_comp) / (p_comp ** 2)
+axes[1].bar(k_neg, pmf_neg, color=ACCENT, alpha=0.85, edgecolor='white')
+axes[1].axvline(mu_neg, color=DANGER, linestyle='--', linewidth=2, label=f'Mean μ = {mu_neg:.1f}, Var σ² = {var_neg:.2f} (> μ)')
+axes[1].set_title('Negative Binomial(r=5, p=0.4)\nFixed Successes → Count Failures (Overdispersed)', fontsize=11.5, fontweight='bold')
+axes[1].set_xlabel('Failures (k) ∈ {0, 1, 2, ... ∞}', fontsize=11)
+axes[1].set_ylabel('Probability P(X = k)', fontsize=11)
+axes[1].legend(fontsize=9.5)
+
+plt.suptitle('Figure 11: Mathematical Duality — Positive vs. Negative Binomial', fontsize=14, fontweight='bold', y=1.03)
+plt.tight_layout()
+plt.savefig('fig_comparison_pos_neg.png', bbox_inches='tight')
+plt.close()
+print("Saved fig_comparison_pos_neg.png")
+
+# 9. Slide 14: 1,000-Sample Negative Binomial Simulation vs Theoretical PMF
+r_nb_sim = 5
+p_nb_sim = 0.4
+N_nb_samples = 1000
+
+nb_samples = np.random.negative_binomial(n=r_nb_sim, p=p_nb_sim, size=N_nb_samples)
+nb_sample_mean = float(np.mean(nb_samples))
+nb_sample_var = float(np.var(nb_samples, ddof=1))
+nb_sample_std = float(np.std(nb_samples, ddof=1))
+
+nb_theo_mean = float(r_nb_sim * (1 - p_nb_sim) / p_nb_sim)          # 7.5
+nb_theo_var = float(r_nb_sim * (1 - p_nb_sim) / (p_nb_sim ** 2))    # 18.75
+nb_theo_std = float(np.sqrt(nb_theo_var))                           # 4.3301
+
+fig, ax = plt.subplots(figsize=(10, 5.5))
+max_k = int(np.percentile(nb_samples, 99.5)) + 2
+bins_nb = np.arange(-0.5, max_k + 1.5, 1)
+ax.hist(nb_samples, bins=bins_nb, density=True, color='#C4B5FD', edgecolor='white', alpha=0.8,
+        label=f'Simulated Frequencies (N={N_nb_samples})')
+
+k_nb_axis = np.arange(0, max_k + 1)
+pmf_nb_theo = stats.nbinom.pmf(k_nb_axis, r_nb_sim, p_nb_sim)
+ax.plot(k_nb_axis, pmf_nb_theo, 'o-', color=DANGER, linewidth=2, markersize=5,
+        label=f'Theoretical NegBin PMF (r={r_nb_sim}, p={p_nb_sim})')
+
+ax.set_xlabel('Number of Failures Before 5th Success (k)', fontsize=12)
+ax.set_ylabel('Relative Frequency / Probability', fontsize=12)
+ax.set_title('Figure 14: 1,000 Simulated Observations vs Theoretical Negative Binomial PMF', fontsize=13, fontweight='bold')
+ax.set_xlim(-0.5, max_k + 0.5)
+ax.legend(fontsize=11)
+plt.tight_layout()
+plt.savefig('fig_negbinom_simulation.png', bbox_inches='tight')
+plt.close()
+print("Saved fig_negbinom_simulation.png")
+
+# Save Negative Binomial simulation metrics
+nb_metrics = {
+    "r_sim": r_nb_sim,
+    "p_sim": p_nb_sim,
+    "N_samples": N_nb_samples,
+    "sample_mean": round(nb_sample_mean, 4),
+    "theo_mean": round(nb_theo_mean, 4),
+    "mean_diff": round(abs(nb_sample_mean - nb_theo_mean), 4),
+    "sample_var": round(nb_sample_var, 4),
+    "theo_var": round(nb_theo_var, 4),
+    "var_diff": round(abs(nb_sample_var - nb_theo_var), 4),
+    "sample_std": round(nb_sample_std, 4),
+    "theo_std": round(nb_theo_std, 4),
+    "std_diff": round(abs(nb_sample_std - nb_theo_std), 4),
+    "dispersion_ratio_sample": round(nb_sample_var / nb_sample_mean, 4),
+    "dispersion_ratio_theo": round(nb_theo_var / nb_theo_mean, 4),
+    "mle_p": round(r_nb_sim / (r_nb_sim + nb_sample_mean), 4)
+}
+
+with open('metrics_negbinom.json', 'w') as f:
+    json.dump(nb_metrics, f, indent=2)
+
+print("\n--- Summary of Negative Binomial Simulation Metrics ---")
+print(f"Sample Mean:     {nb_sample_mean:.4f}  (Theoretical: {nb_theo_mean:.4f})  | Error: {abs(nb_sample_mean - nb_theo_mean):.4f}")
+print(f"Sample Variance: {nb_sample_var:.4f}  (Theoretical: {nb_theo_var:.4f})  | Error: {abs(nb_sample_var - nb_theo_var):.4f}")
+print(f"Sample Std Dev:  {nb_sample_std:.4f}  (Theoretical: {nb_theo_std:.4f})  | Error: {abs(nb_sample_std - nb_theo_std):.4f}")
+print(f"Dispersion Var/Mean: {nb_sample_var/nb_sample_mean:.4f} (Theoretical: {nb_theo_var/nb_theo_mean:.4f} > 1.0)")
+print(f"MLE p-hat:       {r_nb_sim / (r_nb_sim + nb_sample_mean):.4f}  (True p: {p_nb_sim:.4f})")
+print("All Negative Binomial figures generated and metrics saved successfully!")

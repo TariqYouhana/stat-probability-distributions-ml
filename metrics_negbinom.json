@@ -1,0 +1,17 @@
+{
+  "r_sim": 5,
+  "p_sim": 0.4,
+  "N_samples": 1000,
+  "sample_mean": 7.486,
+  "theo_mean": 7.5,
+  "mean_diff": 0.014,
+  "sample_var": 20.0398,
+  "theo_var": 18.75,
+  "var_diff": 1.2898,
+  "sample_std": 4.4766,
+  "theo_std": 4.3301,
+  "std_diff": 0.1465,
+  "dispersion_ratio_sample": 2.677,
+  "dispersion_ratio_theo": 2.5,
+  "mle_p": 0.4004
+}

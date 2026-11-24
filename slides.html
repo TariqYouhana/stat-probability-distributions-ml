@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Binomial Distribution in ML & Data Science — Group 8</title>
+<title>Positive & Negative Binomial Distributions in ML & Data Science — Group 8</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -308,8 +308,8 @@
 <div class="slide slide-title" data-slide="1">
   <div class="animate-in">
     <div class="subtitle">Group 8 Presentation</div>
-    <h1>The Binomial Distribution in<br>Machine Learning & Data Science</h1>
-    <p class="subtitle" style="margin-top:14px">Mathematical Theory, Graphical Dynamics, and Conversion Modeling</p>
+    <h1>Positive & Negative Binomial Distributions<br>in Machine Learning & Data Science</h1>
+    <p class="subtitle" style="margin-top:14px">Mathematical Duality, Overdispersion Modeling, and Empirical Simulation</p>
     <div class="group-info">
       <p>Group 8 &nbsp;|&nbsp; Probability Distributions & Statistical Modeling</p>
     </div>
@@ -345,7 +345,7 @@
   <h2 class="animate-in">The Binomial Distribution: Definition & Core Foundations</h2>
   <div class="two-col">
     <div>
-      <p class="animate-in"><span class="tag tag-discrete">Discrete</span> The universal benchmark for repeated binary trials.</p>
+      <p class="animate-in"><span class="tag tag-discrete">Discrete</span> Also called the <strong>Positive Binomial</strong> (from expanding $(p+q)^n$ with a positive exponent).</p>
       <p class="animate-in" style="margin-top:8px">Models the probability of obtaining exactly <strong>$k$ successes</strong> across a predetermined number of <strong>$n$ independent trials</strong>, each with constant success probability <strong>$p$</strong>.</p>
       <div class="highlight-box animate-in">
         <strong>Support Set:</strong> $X \in \{0, 1, 2, \dots, n\}$ (strictly non-negative integer counts).
@@ -429,9 +429,10 @@
     </div>
     <div>
       <div class="highlight-box animate-in">
-        <strong>Variance Dynamics:</strong><br>
-        • <strong>Maximum Variance at p = 0.5:</strong> Maximum uncertainty occurs when success and failure are equally likely ($p(1-p) = 0.25$).<br>
-        • <strong>Zero Variance at p = 0 or p = 1:</strong> When an outcome is deterministic, dispersion vanishes entirely.
+        <strong>Variance Dynamics & Underdispersion:</strong><br>
+        • <strong>Underdispersion (σ² &lt; μ):</strong> Since $(1-p) &lt; 1$, variance is always strictly less than the mean.<br>
+        • <strong>Max Variance at p = 0.5:</strong> Peak uncertainty occurs when $p(1-p) = 0.25$; vanishes at $p = 0$ or $1$.<br>
+        • <strong>MLE Estimator:</strong> $\hat{p}_{\text{MLE}} = k / n$ (sample proportion).
       </div>
       <div class="card animate-in" style="border-left: 3px solid var(--success)">
         <p><strong>Linearity of Expectation:</strong> Because $X = \sum Y_i$, $E[X] = \sum E[Y_i] = np$ holds directly even if slight correlations exist.</p>
@@ -520,125 +521,103 @@
   </div>
 </div>
 
-<!-- ════════════════════ SLIDE 9: LIKELIHOOD & MLE ════════════════════ -->
+<!-- ════════════════════ SLIDE 9: INTRODUCING NEGATIVE BINOMIAL ════════════════════ -->
 <div class="slide" data-slide="9">
-  <h2 class="animate-in">Parameter Estimation via Maximum Likelihood Estimation (MLE)</h2>
+  <h2 class="animate-in">The Negative Binomial Distribution: Definition & PMF</h2>
+  <div class="formula-box animate-in">
+    P(X = k) = <span style="font-size:1.15em">(<sup>k + r − 1</sup><sub>k</sub>)</span> · p<sup>r</sup> · (1 − p)<sup>k</sup> &nbsp;&nbsp; for k ∈ {0, 1, 2, … ∞}
+  </div>
   <div class="two-col">
     <div>
       <div class="card animate-in">
-        <h3>The Likelihood Function</h3>
-        <p>Given observed count $k$ successes in $n$ trials, the likelihood evaluates the plausibility of parameter $p$:</p>
-        <div class="formula-box" style="font-size:1.05rem; padding:8px; margin:8px 0">
-          L(p | k) = (<sup>n</sup><sub>k</sub>) p<sup>k</sup> (1 − p)<sup>n − k</sup>
-        </div>
+        <h3>The Flipped Question</h3>
+        <p>Instead of fixing trials <i>n</i> and counting successes, we <strong>fix target successes <i>r</i></strong> and count how many <strong>failures <i>k</i></strong> occur <em>before</em> the <i>r</i>-th success.</p>
+        <p style="margin-top:8px; font-size:0.92rem; color:var(--text-muted)"><strong>Why "Negative"?</strong> Derived from the negative-power expansion: (1 − q)<sup>−r</sup> = ∑ (<sup>k+r−1</sup><sub>k</sub>) q<sup>k</sup>.</p>
       </div>
-      <div class="card animate-in">
-        <h3>Log-Likelihood</h3>
-        <div class="formula-box" style="font-size:0.95rem; padding:8px; margin:8px 0">
-          ln L(p) = ln(<sup>n</sup><sub>k</sub>) + k ln(p) + (n − k) ln(1 − p)
-        </div>
-      </div>
-    </div>
-    <div>
       <div class="highlight-box animate-in">
-        <strong>Deriving the Optimal Estimator:</strong><br>
-        Setting the derivative to zero:
-        <div style="font-family:Georgia; font-size:1.05rem; margin:6px 0; color:var(--primary); text-align:center">
-          d(ln L) / dp = (k / p) − (n − k) / (1 − p) = 0
-        </div>
-        Yields the closed-form analytical solution:
-        <div class="formula-box" style="font-size:1.15rem; padding:8px; margin:6px 0">
-          p̂<sub>MLE</sub> = k / n = (Observed Successes) / (Total Trials)
-        </div>
+        <strong>Special Case:</strong> When <i>r</i> = 1, Negative Binomial reduces to the <strong>Geometric(<i>p</i>)</strong> distribution.
       </div>
-      <div class="card animate-in" style="border-left: 3px solid var(--success); background:#F0FDF4">
-        <p>✅ <strong>Theoretically Optimal:</strong> The intuitive sample proportion is the minimum-variance, unbiased, and asymptotically efficient estimator for $p$.</p>
-      </div>
+    </div>
+    <div>
+      <table class="stats-table animate-in">
+        <tr><th>Parameter / Term</th><th>Role</th></tr>
+        <tr><td><strong>r &gt; 0</strong></td><td>Fixed target number of successes</td></tr>
+        <tr><td><strong>k ∈ {0, 1, 2, …}</strong></td><td>Unbounded count of failures before <i>r</i>-th success</td></tr>
+        <tr><td><strong>p ∈ (0, 1]</strong></td><td>Constant probability of success per trial</td></tr>
+        <tr><td><strong>(<sup>k+r−1</sup><sub>k</sub>)</strong></td><td>Arrangements of <i>k</i> failures &amp; <i>r</i>−1 successes before final success</td></tr>
+      </table>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════ SLIDE 10: APPLICATION 1 — A/B TESTING ════════════════════ -->
+<!-- ════════════════════ SLIDE 10: NEGATIVE BINOMIAL PROPERTIES & GRAPHS ════════════════════ -->
 <div class="slide" data-slide="10">
-  <h2 class="animate-in">Application 1: A/B Testing in Digital Product Analytics</h2>
-  <div class="app-card animate-in">
-    <div class="app-icon">🧪</div>
-    <div>
-      <h3>Online Controlled Experimentation</h3>
-      <ul>
-        <li><strong>Problem:</strong> Testing whether a redesigned checkout layout (Variant B) drives more purchases than the current version (Control A).</li>
-        <li><strong>Model:</strong> Visitors are randomly split: $X_A \sim \text{Binomial}(n_A, p_A)$ and $X_B \sim \text{Binomial}(n_B, p_B)$.</li>
-        <li><strong>Hypothesis:</strong> $H_0: p_B \le p_A$ vs. $H_1: p_B > p_A$.</li>
-      </ul>
+  <h2 class="animate-in">Negative Binomial: Moments, Overdispersion & Shape</h2>
+  <div class="figure-card animate-in">
+    <img src="fig_negbinom_pmf_variations.png" alt="Negative Binomial PMF Variations">
+    <div class="caption">Figure 10: Negative Binomial PMF Dynamics across varying p (left) and target r (right)</div>
+  </div>
+  <div class="two-col" style="margin-top:10px">
+    <div class="card animate-in">
+      <h3>Moments & MLE</h3>
+      <p><strong>Mean:</strong> μ = r(1 − p) / p &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Variance:</strong> σ² = r(1 − p) / p² = μ + μ² / r</p>
+      <p style="font-size:0.92rem; color:var(--text-muted); margin-top:4px"><strong>MLE Estimator:</strong> p̂<sub>MLE</sub> = r / (r + x̄)</p>
+    </div>
+    <div class="highlight-box animate-in">
+      <strong>Signature Property — Overdispersion (σ² &gt; μ):</strong> Because μ²/r &gt; 0, variance is always <strong>strictly greater than the mean</strong>, making it ideal for noisy real-world count data!
     </div>
   </div>
+</div>
+
+<!-- ════════════════════ SLIDE 11: POS VS NEG DUALITY ════════════════════ -->
+<div class="slide" data-slide="11">
+  <h2 class="animate-in">Positive vs. Negative Binomial: Mathematical Duality</h2>
   <div class="two-col">
-    <div class="highlight-box animate-in">
-      <strong>Statistical Significance:</strong>
-      <p style="margin-top:4px">Evaluated via a two-proportion pooled $Z$-test:</p>
-      <div style="font-family:Georgia; font-size:1.05rem; margin-top:4px; color:var(--primary); text-align:center">
-        Z = (p̂_B − p̂_A) / √[ p̂(1−p̂)(1/n_A + 1/n_B) ]
+    <div>
+      <div class="figure-card animate-in">
+        <img src="fig_comparison_pos_neg.png" alt="Positive vs Negative Binomial Comparison">
+        <div class="caption">Figure 11: Underdispersed Positive Binomial (left) vs. Overdispersed Negative Binomial (right)</div>
       </div>
     </div>
-    <div class="card animate-in">
-      <h3 style="color:var(--primary)">Industry Scale</h3>
-      <p style="font-size:0.92rem; color:var(--text-muted)">Companies like Netflix, Amazon, Meta, and Google run tens of thousands of simultaneous Binomial A/B experiments annually to guide billion-dollar deployment decisions.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════ SLIDE 11: APPLICATION 2 — CTR IN AD TECH ════════════════════ -->
-<div class="slide" data-slide="11">
-  <h2 class="animate-in">Application 2: Click-Through-Rate (CTR) & Auction Engines</h2>
-  <div class="app-card animate-in">
-    <div class="app-icon">📢</div>
     <div>
-      <h3>Real-Time Ad Auction Optimization</h3>
-      <ul>
-        <li><strong>Impression Funnel:</strong> Every ad view is an opportunity ($n$). A user clicking is a binary outcome with probability $p = \text{pCTR}$.</li>
-        <li><strong>Binomial Revenue Model:</strong> Total clicks $k \sim \text{Binomial}(n, \text{pCTR})$.</li>
-        <li><strong>Auction Ranking:</strong> Bidding systems rank ads by expected return:
-          <br><strong>Expected Value = n × pCTR × Cost-Per-Click Bid</strong>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="two-col">
-    <div class="highlight-box animate-in">
-      <strong>Poisson Convergence:</strong>
-      <p style="margin-top:4px">When impressions reach millions ($n \to \infty$) and click probability is small ($p \to 0$), the Binomial seamlessly converges to the <strong>Poisson distribution</strong> with rate $\lambda = np$.</p>
-    </div>
-    <div class="card animate-in">
-      <h3 style="color:var(--accent)">Calibration Challenge</h3>
-      <p style="font-size:0.92rem; color:var(--text-muted)">A 1% error in estimating the Binomial parameter $p$ can cost digital ad platforms millions in lost auction efficiency.</p>
+      <table class="stats-table animate-in" style="font-size:0.88rem">
+        <tr><th>Property</th><th>Positive Binomial</th><th>Negative Binomial</th></tr>
+        <tr><td><strong>Fixed</strong></td><td>Trials <i>n</i></td><td>Successes <i>r</i></td></tr>
+        <tr><td><strong>Counted (k)</strong></td><td>Successes ∈ {0..n}</td><td>Failures ∈ {0..∞}</td></tr>
+        <tr><td><strong>Expansion</strong></td><td>(p + q)<sup>n</sup></td><td>(1 − q)<sup>−r</sup></td></tr>
+        <tr><td><strong>Mean (μ)</strong></td><td>np</td><td>r(1 − p) / p</td></tr>
+        <tr><td><strong>Variance (σ²)</strong></td><td>np(1−p) <strong>&lt; μ</strong></td><td>r(1−p)/p² <strong>&gt; μ</strong></td></tr>
+      </table>
+      <div class="highlight-box animate-in" style="margin-top:10px; font-size:0.9rem">
+        <strong>ML Model Bridge:</strong> Positive Binomial powers <strong>Logistic Regression</strong> (Binary Cross-Entropy loss for <i>p(x) = σ(βᵀx)</i>), while Negative Binomial powers <strong>Negative Binomial Regression</strong> for overdispersed count targets.
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════ SLIDE 12: APPLICATION 3 — LOGISTIC REGRESSION ════════════════════ -->
+<!-- ════════════════════ SLIDE 12: COMBINED ML APPLICATIONS ════════════════════ -->
 <div class="slide" data-slide="12">
-  <h2 class="animate-in">Application 3: The Engine of Logistic Regression</h2>
-  <div class="app-card animate-in">
-    <div class="app-icon">⚙️</div>
-    <div>
-      <h3>Logistic Regression as a Generalized Binomial Model</h3>
-      <ul>
-        <li><strong>Goal:</strong> Predict classification probability $p(x) = P(Y = 1 | x)$ conditioned on input features $x$.</li>
-        <li><strong>Logit Link Function:</strong> Models the log-odds linearly:
-          <br>$\ln[ p(x) / (1 − p(x)) ] = \beta_0 + \beta_1 x_1 + \dots + \beta_d x_d = \beta^T x$
-        </li>
-        <li><strong>Inverting to the Sigmoid:</strong> $p(x) = \sigma(\beta^T x) = 1 / (1 + e^{-\beta^T x})$.</li>
-      </ul>
-    </div>
-  </div>
+  <h2 class="animate-in">Real-World ML Applications: Positive vs. Negative Binomial</h2>
   <div class="two-col">
-    <div class="highlight-box animate-in">
-      <strong>Loss Function Equivalence:</strong>
-      <p style="margin-top:4px">The standard <strong>Binary Cross-Entropy (BCE)</strong> loss function minimized in machine learning is mathematically identical to the negative log-likelihood of independent Binomial trials!</p>
+    <div>
+      <div class="card animate-in" style="border-top: 4px solid var(--primary)">
+        <h3 style="color:var(--primary)">Positive Binomial (Bounded Counts)</h3>
+        <ul>
+          <li><strong>A/B Testing & Conversion Lift:</strong> Split visitors into Layout A vs. B; run two-proportion <i>Z</i>-tests to validate deployment decisions (Netflix, Meta, Amazon).</li>
+          <li><strong>Click-Through Rate (CTR) Auctions:</strong> Model expected ad clicks <i>k</i> ~ Bin(<i>n</i>, pCTR) across <i>n</i> impressions to price real-time bids.</li>
+          <li><strong>Binary Classification:</strong> Sigmoid outputs optimize Binomial log-likelihood.</li>
+        </ul>
+      </div>
     </div>
-    <div class="card animate-in">
-      <h3 style="color:var(--success)">Core ML Connection</h3>
-      <p style="font-size:0.92rem; color:var(--text-muted)">Every deep learning or ML binary classification model with a sigmoid output layer is actively estimating a parameter for a Bernoulli/Binomial trial.</p>
+    <div>
+      <div class="card animate-in" style="border-top: 4px solid var(--accent)">
+        <h3 style="color:var(--accent)">Negative Binomial (Overdispersed Counts)</h3>
+        <ul>
+          <li><strong>Negative Binomial Regression (GLMs):</strong> Predicts insurance claims, hospital ER visits, and software bug counts where σ² ≫ μ (where Poisson fails).</li>
+          <li><strong>Customer & Churn Analytics:</strong> Models repeat purchases or support tickets before customer churn.</li>
+          <li><strong>Bioinformatics (RNA-Seq):</strong> Powers differential gene expression tools (<code>DESeq2</code>, <code>edgeR</code>).</li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
@@ -673,29 +652,30 @@
   </div>
 </div>
 
-<!-- ════════════════════ SLIDE 14: PRACTICAL DEMO PART B ════════════════════ -->
+<!-- ════════════════════ SLIDE 14: PRACTICAL DEMO PART B — NEGATIVE BINOMIAL ════════════════════ -->
 <div class="slide" data-slide="14">
-  <h2 class="animate-in">Practical Demo — Part B: Applied A/B Testing Evaluation</h2>
+  <h2 class="animate-in">Practical Demo — Part B: Negative Binomial Simulation</h2>
   <div class="two-col">
     <div>
       <div class="figure-card animate-in">
-        <img src="fig_ab_testing_distributions.png" alt="A/B Testing Distributions">
-        <div class="caption">Figure 14: Sampling Distributions for Control A (10%) vs. Variant B (13%)</div>
+        <img src="fig_negbinom_simulation.png" alt="1,000 Sample Negative Binomial Simulation">
+        <div class="caption">Figure 14: 1,000 Simulated Samples vs Theoretical NegBin PMF (r=5, p=0.4)</div>
       </div>
     </div>
     <div>
       <div class="card animate-in">
-        <h3 style="color:var(--success)">Statistical Inference Results</h3>
-        <ul style="font-size:0.95rem">
-          <li><strong>Control (Layout A):</strong> $n_A = 1,000$, Conversions = 100 ($p_A = 10.0\%$)</li>
-          <li><strong>Variant (Layout B):</strong> $n_B = 1,000$, Conversions = 130 ($p_B = 13.0\%$)</li>
-          <li><strong>Observed Lift:</strong> +3.0% absolute increase (+30% relative improvement)</li>
-          <li><strong>Test Statistic:</strong> $Z = 2.1051$</li>
-          <li><strong>p-Value:</strong> <strong style="color:var(--success); font-size:1.1rem">0.0176</strong> (1.76%)</li>
-        </ul>
+        <h3>Empirical vs Theoretical Moments</h3>
+        <table class="stats-table">
+          <tr><th>Metric</th><th>Theoretical</th><th>Simulated (N=1,000)</th><th>Error</th></tr>
+          <tr><td><strong>Mean (μ)</strong></td><td>7.5000</td><td><strong>7.4860</strong></td><td>0.0140 (0.19%)</td></tr>
+          <tr><td><strong>Variance (σ²)</strong></td><td>18.7500</td><td><strong>20.0398</strong></td><td>1.2898 (6.88%)</td></tr>
+          <tr><td><strong>Std Dev (σ)</strong></td><td>4.3301</td><td><strong>4.4766</strong></td><td>0.1465 (3.38%)</td></tr>
+          <tr><td><strong>Dispersion (σ²/μ)</strong></td><td>2.5000</td><td><strong>2.6770 (&gt; 1)</strong></td><td>Overdispersed!</td></tr>
+          <tr><td><strong>MLE Parameter (p̂)</strong></td><td>0.4000</td><td><strong>0.4004</strong></td><td>0.0004 (0.10%)</td></tr>
+        </table>
       </div>
       <div class="highlight-box animate-in" style="margin-top:10px">
-        <strong>Business Decision:</strong> Because $p < 0.05$, we reject $H_0$ with 95% statistical confidence. The platform should immediately deploy Layout B!
+        <strong>Overdispersion Verified:</strong> Simulated variance (20.04) is nearly <strong>2.7×</strong> the mean (7.49), and MLE p̂ = r / (r + x̄) recovers 0.4004 vs true 0.4000!
       </div>
     </div>
   </div>
@@ -707,9 +687,9 @@
   <div class="two-col">
     <div>
       <ul>
-        <li class="animate-in">The <strong>Binomial Distribution</strong> is the fundamental mathematical standard for modeling discrete binary counts and conversion rates in modern Data Science.</li>
-        <li class="animate-in">It seamlessly connects discrete experimentation to continuous machine learning via the <strong>De Moivre–Laplace theorem</strong> and <strong>Logistic Regression</strong>.</li>
-        <li class="animate-in">Analytical <strong>MLE</strong> allows instantaneous, optimal parameter estimation directly from sample counts.</li>
+        <li class="animate-in"><strong>Mathematical Duality:</strong> Positive Binomial models <em>bounded successes</em> (σ² &lt; μ), while Negative Binomial models <em>unbounded failures</em> (σ² &gt; μ).</li>
+        <li class="animate-in"><strong>ML Foundations:</strong> Together they power A/B testing, Logistic Regression, and Negative Binomial GLMs for overdispersed count data.</li>
+        <li class="animate-in"><strong>Empirical Validation:</strong> Both 1,000-sample Python simulations converged tightly to theoretical moments and MLE parameters.</li>
       </ul>
     </div>
     <div>
@@ -717,18 +697,18 @@
         <h3 style="color: #FCA5A5">⚠️ Critical Real-World Limitations</h3>
         <ul>
           <li style="color:#E2E8F0"><strong>Independence Violation:</strong> Viral growth, referral networks, and social contagion violate the "I" assumption.</li>
-          <li style="color:#E2E8F0"><strong>Probability Drift:</strong> Conversion rates fluctuate by time of day, season, and marketing fatigue (non-constant $p$).</li>
-          <li style="color:#E2E8F0"><strong>Overdispersion:</strong> When variance exceeds $np(1-p)$, models must upgrade to Beta-Binomial distributions.</li>
+          <li style="color:#E2E8F0"><strong>Probability Drift:</strong> Conversion and failure rates fluctuate by time of day, season, and fatigue.</li>
+          <li style="color:#E2E8F0"><strong>Zero-Inflation:</strong> Excess zeros in real-world counts require Zero-Inflated Negative Binomial (ZINB) models.</li>
         </ul>
       </div>
     </div>
   </div>
   <div class="refs animate-in">
     <strong>Academic References:</strong><br>
-    [1] Wackerly, D., Mendenhall, W., & Scheaffer, R. <em>Mathematical Statistics with Applications</em>, 7th ed., Cengage Learning, 2008.<br>
-    [2] Montgomery, D. C., & Runger, G. C. <em>Applied Statistics and Probability for Engineers</em>, 7th ed., Wiley, 2018.<br>
-    [3] Bishop, C. M. <em>Pattern Recognition and Machine Learning</em>. Information Science and Statistics, Springer, 2006.<br>
-    [4] Kohavi, R., Tang, D., & Xu, Y. <em>Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing</em>, Cambridge University Press, 2020.
+    [1] Casella, G., &amp; Berger, R. L. <em>Statistical Inference</em>, 2nd ed., Duxbury Press, 2002.<br>
+    [2] Bishop, C. M. <em>Pattern Recognition and Machine Learning</em>, Springer, 2006.<br>
+    [3] Hilbe, J. M. <em>Negative Binomial Regression</em>, 2nd ed., Cambridge University Press, 2011.<br>
+    [4] Hastie, T., Tibshirani, R., &amp; Friedman, J. <em>The Elements of Statistical Learning</em>, 2nd ed., Springer, 2009.
   </div>
   <p class="animate-in" style="text-align:center; margin-top:14px; font-size:1.2rem; color:white">
     Thank You! &nbsp;Questions & Discussion 🙋

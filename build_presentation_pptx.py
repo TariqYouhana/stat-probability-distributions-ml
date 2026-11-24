@@ -105,14 +105,14 @@ def create_binomial_deck():
     p0.space_after = Pt(14)
 
     p1 = tf1.add_paragraph()
-    p1.text = "The Binomial Distribution in\nMachine Learning & Data Science"
-    p1.font.size = Pt(36)
+    p1.text = "Positive & Negative Binomial Distributions\nin Machine Learning & Data Science"
+    p1.font.size = Pt(34)
     p1.font.bold = True
     p1.font.color.rgb = RGBColor(255, 255, 255)
     p1.space_after = Pt(16)
 
     p2 = tf1.add_paragraph()
-    p2.text = "Mathematical Theory, Graphical Dynamics, Maximum Likelihood, and Conversion Modeling"
+    p2.text = "Mathematical Duality, Overdispersion Modeling, and Empirical Simulation"
     p2.font.size = Pt(16)
     p2.font.color.rgb = RGBColor(226, 232, 240)
     p2.space_after = Pt(28)
@@ -195,7 +195,7 @@ def create_binomial_deck():
     # SLIDE 3: Introducing the Binomial Distribution
     # ═══════════════════════════════════════════════════════
     s3 = prs.slides.add_slide(blank_layout)
-    add_header(s3, "The Binomial Distribution: Definition & Foundations")
+    add_header(s3, "The Positive Binomial Distribution: Definition & Foundations")
     add_footer(s3, 3)
 
     add_card(s3, Inches(0.8), Inches(1.6), Inches(5.6), Inches(5.1))
@@ -211,7 +211,7 @@ def create_binomial_deck():
     p.space_after = Pt(10)
 
     b_pts = [
-        ("Discrete Nature: ", "The random variable X takes on strictly non-negative integer counts from the finite support set X ∈ {0, 1, 2, ..., n}."),
+        ("Why 'Positive' Binomial?: ", "Derived from expanding (p + q)^n with a positive exponent n; X takes integer counts in {0, 1, ..., n}."),
         ("Formal Definition: ", "Models the exact probability of obtaining k successes across n identical, independent trials with constant success probability p."),
         ("Special Case (n = 1): ", "When n = 1, the Binomial distribution reduces to the single-trial Bernoulli distribution."),
         ("Real-World Foundation: ", "Serves as the theoretical standard for A/B testing conversion rates, digital ad click tracking, and survey polling.")
@@ -385,10 +385,10 @@ def create_binomial_deck():
     p.space_after = Pt(8)
 
     v_pts = [
-        ("Peak Uncertainty at p = 0.5: ", "The term p(1-p) achieves its global maximum at p = 0.5 (0.25). A coin flip has the highest outcome entropy."),
-        ("Zero Variance at Extremes: ", "As p approaches 0.0 or 1.0, variance drops to 0. When an event is impossible or guaranteed, dispersion vanishes."),
-        ("Linearity of Expectation: ", "Even if trials exhibit weak correlation, E[X] = np remains exact because expectation is always strictly linear."),
-        ("Standard Deviation Scaling: ", "Spread grows with √n rather than n. A 4x increase in trials only doubles the absolute spread!")
+        ("Underdispersion (σ² < μ): ", "Because (1 - p) < 1, Positive Binomial variance is always strictly less than its mean."),
+        ("Peak Uncertainty at p = 0.5: ", "The term p(1-p) achieves its global maximum at p = 0.5 (0.25) and vanishes at p = 0 or 1."),
+        ("Linearity of Expectation: ", "Even if trials exhibit weak correlation, E[X] = np remains exact because expectation is strictly linear."),
+        ("MLE Estimator: ", "Closed-form Maximum Likelihood Estimator is the sample proportion: p̂_MLE = k / n.")
     ]
     for v_title, v_desc in v_pts:
         p_b = tf5_r.add_paragraph()
@@ -546,283 +546,258 @@ def create_binomial_deck():
         p_b.space_after = Pt(6)
 
     # ═══════════════════════════════════════════════════════
-    # SLIDE 9: Likelihood & MLE
+    # SLIDE 9: Introducing the Negative Binomial Distribution
     # ═══════════════════════════════════════════════════════
     s9 = prs.slides.add_slide(blank_layout)
-    add_header(s9, "Parameter Estimation via Maximum Likelihood Estimation (MLE)")
+    add_header(s9, "The Negative Binomial Distribution: Definition & PMF")
     add_footer(s9, 9)
 
-    add_card(s9, Inches(0.8), Inches(1.6), Inches(5.8), Inches(5.1))
-    tb9_l = s9.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.4), Inches(4.7))
+    # Top Formula Banner
+    add_card(s9, Inches(0.8), Inches(1.5), Inches(11.733), Inches(1.0), bg_color=HIGHLIGHT_BG, border_color=ACCENT)
+    tb9_f = s9.shapes.add_textbox(Inches(1.0), Inches(1.65), Inches(11.333), Inches(0.75))
+    tf9_f = tb9_f.text_frame
+    p9_f = tf9_f.paragraphs[0]
+    p9_f.text = "PMF:   P(X = k) = (k + r − 1 choose k) · p^r · (1 − p)^k     for  k ∈ {0, 1, 2, ... ∞}"
+    p9_f.font.size = Pt(18)
+    p9_f.font.bold = True
+    p9_f.font.color.rgb = ACCENT
+    p9_f.alignment = PP_ALIGN.CENTER
+
+    # Left: Flipped Question
+    add_card(s9, Inches(0.8), Inches(2.7), Inches(5.8), Inches(4.0))
+    tb9_l = s9.shapes.add_textbox(Inches(1.0), Inches(2.9), Inches(5.4), Inches(3.6))
     tf9_l = tb9_l.text_frame
     tf9_l.word_wrap = True
-
     p = tf9_l.paragraphs[0]
-    p.text = "The Likelihood Formulation"
+    p.text = "The Flipped Question"
     p.font.size = Pt(15)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
     p.space_after = Pt(8)
 
-    p1 = tf9_l.add_paragraph()
-    p1.text = "In real-world data science, p is unknown. We observe k successes in n trials and seek the parameter value that maximizes the likelihood of having generated the data:"
-    p1.font.size = Pt(11)
-    p1.space_after = Pt(6)
+    nb_pts = [
+        ("Opposite Framing: ", "Instead of fixing trials n and counting successes, we fix target successes r and count failures k before the r-th success."),
+        ("Why 'Negative'?: ", "Derived from the negative-power series expansion (1 − q)^(-r) = ∑ (k+r-1 choose k) q^k."),
+        ("Special Case (r = 1): ", "When r = 1, Negative Binomial reduces directly to the Geometric(p) distribution.")
+    ]
+    for title_t, desc_t in nb_pts:
+        p_n = tf9_l.add_paragraph()
+        r1 = p_n.add_run()
+        r1.text = "• " + title_t
+        r1.font.bold = True
+        r1.font.size = Pt(11.5)
+        r1.font.color.rgb = PRIMARY_DARK
+        r2 = p_n.add_run()
+        r2.text = desc_t
+        r2.font.size = Pt(11)
+        r2.font.color.rgb = TEXT_DARK
+        p_n.space_after = Pt(8)
 
-    p_f1 = tf9_l.add_paragraph()
-    p_f1.text = "L(p | k) = (n choose k) · p^k · (1 − p)^(n − k)"
-    p_f1.font.size = Pt(11.5)
-    p_f1.font.bold = True
-    p_f1.font.color.rgb = ACCENT
-    p_f1.space_after = Pt(8)
-
-    p2 = tf9_l.add_paragraph()
-    p2.text = "Taking the log to obtain the Log-Likelihood:"
-    p2.font.size = Pt(11)
-    p2.space_after = Pt(4)
-
-    p_f2 = tf9_l.add_paragraph()
-    p_f2.text = "ln L(p) = ln(n choose k) + k ln(p) + (n − k) ln(1 − p)"
-    p_f2.font.size = Pt(11)
-    p_f2.font.bold = True
-    p_f2.font.color.rgb = PRIMARY
-
-    # Right: Derivation
-    add_card(s9, Inches(6.9), Inches(1.6), Inches(5.633), Inches(5.1))
-    tb9_r = s9.shapes.add_textbox(Inches(7.1), Inches(1.8), Inches(5.2), Inches(4.7))
+    # Right: Parameter Table
+    add_card(s9, Inches(6.9), Inches(2.7), Inches(5.633), Inches(4.0))
+    tb9_r = s9.shapes.add_textbox(Inches(7.1), Inches(2.9), Inches(5.2), Inches(3.6))
     tf9_r = tb9_r.text_frame
     tf9_r.word_wrap = True
-
     p = tf9_r.paragraphs[0]
-    p.text = "Analytical Solution & Optimality"
+    p.text = "Parameters & Combinatorial Logic"
     p.font.size = Pt(15)
     p.font.bold = True
-    p.font.color.rgb = SUCCESS_COLOR
+    p.font.color.rgb = ACCENT
     p.space_after = Pt(8)
 
-    p1 = tf9_r.add_paragraph()
-    p1.text = "Setting the derivative with respect to p to zero:\nd(ln L) / dp = (k / p) − (n − k) / (1 − p) = 0"
-    p1.font.size = Pt(11.5)
-    p1.space_after = Pt(8)
-
-    p_opt = tf9_r.add_paragraph()
-    p_opt.text = "p̂_MLE = k / n = (Observed Successes) / (Total Trials)"
-    p_opt.font.size = Pt(13)
-    p_opt.font.bold = True
-    p_opt.font.color.rgb = PRIMARY
-    p_opt.space_after = Pt(12)
-
-    p_prop = tf9_r.add_paragraph()
-    p_prop.text = "Theoretical Guarantees of p̂_MLE:\n• Unbiased: E[p̂] = E[k]/n = np/n = p\n• Minimum Variance: Achieves the Cramér-Rao Lower Bound\n• Asymptotically Efficient: Variance converges to p(1-p)/n as n grows"
-    p_prop.font.size = Pt(11)
-    p_prop.font.color.rgb = TEXT_DARK
+    nb_params = [
+        ("r > 0: ", "Fixed target number of successes required to stop."),
+        ("k ∈ {0, 1, 2, ...}: ", "Unbounded count of failures observed before the r-th success."),
+        ("p ∈ (0, 1]: ", "Constant probability of success on each independent trial."),
+        ("Combinatorial Term: ", "The final trial must be the r-th success; (k + r − 1 choose k) arranges k failures across the preceding k + r − 1 trials.")
+    ]
+    for title_t, desc_t in nb_params:
+        p_n = tf9_r.add_paragraph()
+        r1 = p_n.add_run()
+        r1.text = "• " + title_t
+        r1.font.bold = True
+        r1.font.size = Pt(11.5)
+        r1.font.color.rgb = PRIMARY_DARK
+        r2 = p_n.add_run()
+        r2.text = desc_t
+        r2.font.size = Pt(11)
+        r2.font.color.rgb = TEXT_DARK
+        p_n.space_after = Pt(8)
 
     # ═══════════════════════════════════════════════════════
-    # SLIDE 10: Application 1 — A/B Testing
+    # SLIDE 10: Negative Binomial Properties, Overdispersion & Graphs
     # ═══════════════════════════════════════════════════════
     s10 = prs.slides.add_slide(blank_layout)
-    add_header(s10, "Application 1: A/B Testing in Digital Product Analytics")
+    add_header(s10, "Negative Binomial: Moments, Overdispersion & Shape")
     add_footer(s10, 10)
 
-    add_card(s10, Inches(0.8), Inches(1.6), Inches(5.8), Inches(5.1))
-    tb10_l = s10.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.4), Inches(4.7))
+    add_card(s10, Inches(0.8), Inches(1.45), Inches(11.733), Inches(3.75))
+    if os.path.exists("fig_negbinom_pmf_variations.png"):
+        s10.shapes.add_picture("fig_negbinom_pmf_variations.png", Inches(1.2), Inches(1.52), width=Inches(10.9))
+
+    # Bottom Left: Moments & MLE
+    add_card(s10, Inches(0.8), Inches(5.35), Inches(5.7), Inches(1.55))
+    tb10_l = s10.shapes.add_textbox(Inches(1.0), Inches(5.45), Inches(5.3), Inches(1.35))
     tf10_l = tb10_l.text_frame
     tf10_l.word_wrap = True
-
     p = tf10_l.paragraphs[0]
-    p.text = "Online Controlled Experimentation"
-    p.font.size = Pt(15)
+    p.text = "Moments & MLE"
+    p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
-    p.space_after = Pt(10)
-
-    ab_steps = [
-        ("The Business Setup: ", "Testing whether a redesigned checkout page (Variant B) drives more purchases than the existing layout (Control A)."),
-        ("Binomial Allocation: ", "Incoming users are randomly split: X_A ~ Binomial(n_A, p_A) and X_B ~ Binomial(n_B, p_B)."),
-        ("Hypothesis Formulation: ", "Null Hypothesis H_0: p_B ≤ p_A (No lift) vs. Alternative Hypothesis H_1: p_B > p_A (Real lift)."),
-        ("Two-Proportion Z-Test: ", "Statisticians evaluate the Z-score using pooled variance to decide if the lift is statistically significant (p < 0.05).")
-    ]
-    for s_title, s_desc in ab_steps:
-        p_s = tf10_l.add_paragraph()
-        r1 = p_s.add_run()
-        r1.text = "• " + s_title
-        r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = PRIMARY_DARK
-        r2 = p_s.add_run()
-        r2.text = s_desc
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_DARK
-        p_s.space_after = Pt(8)
-
-    # Right: Formula & Impact
-    add_card(s10, Inches(6.9), Inches(1.6), Inches(5.633), Inches(2.6), bg_color=HIGHLIGHT_BG, border_color=PRIMARY)
-    tb10_r1 = s10.shapes.add_textbox(Inches(7.1), Inches(1.8), Inches(5.2), Inches(2.2))
-    tf10_r1 = tb10_r1.text_frame
-    tf10_r1.word_wrap = True
-    p = tf10_r1.paragraphs[0]
-    p.text = "Two-Proportion Z-Test Formula"
-    p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(6)
-    p1 = tf10_r1.add_paragraph()
-    p1.text = "Z = (p̂_B − p̂_A) / √[ p̂(1−p̂)(1/n_A + 1/n_B) ]\n\nWhere p̂ is the pooled conversion rate across all cohorts."
+    p.space_after = Pt(4)
+    p1 = tf10_l.add_paragraph()
+    p1.text = "Mean: μ = r(1 − p)/p   |   Var: σ² = r(1 − p)/p² = μ + μ²/r\nMLE Estimator: p̂_MLE = r / (r + x̄)"
     p1.font.size = Pt(11.5)
     p1.font.color.rgb = TEXT_DARK
 
-    add_card(s10, Inches(6.9), Inches(4.4), Inches(5.633), Inches(2.3))
-    tb10_r2 = s10.shapes.add_textbox(Inches(7.1), Inches(4.6), Inches(5.2), Inches(1.9))
-    tf10_r2 = tb10_r2.text_frame
-    tf10_r2.word_wrap = True
-    p = tf10_r2.paragraphs[0]
-    p.text = "Industry Scale"
-    p.font.size = Pt(14)
+    # Bottom Right: Overdispersion Highlight
+    add_card(s10, Inches(6.8), Inches(5.35), Inches(5.733), Inches(1.55), bg_color=HIGHLIGHT_BG, border_color=ACCENT)
+    tb10_r = s10.shapes.add_textbox(Inches(7.0), Inches(5.45), Inches(5.3), Inches(1.35))
+    tf10_r = tb10_r.text_frame
+    tf10_r.word_wrap = True
+    p = tf10_r.paragraphs[0]
+    p.text = "Signature Property: Overdispersion (σ² > μ)"
+    p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = ACCENT
-    p.space_after = Pt(6)
-    p1 = tf10_r2.add_paragraph()
-    p1.text = "Platforms like Netflix, Amazon, Meta, and Google run tens of thousands of simultaneous Binomial A/B experiments annually to guide multi-million dollar product deployment decisions."
+    p.space_after = Pt(4)
+    p1 = tf10_r.add_paragraph()
+    p1.text = "Because μ²/r > 0, variance is ALWAYS strictly greater than the mean—making it essential for noisy real-world count data!"
     p1.font.size = Pt(11)
-    p1.font.color.rgb = TEXT_MUTED
+    p1.font.color.rgb = TEXT_DARK
 
     # ═══════════════════════════════════════════════════════
-    # SLIDE 11: Application 2 — CTR in Ad Tech
+    # SLIDE 11: Positive vs Negative Binomial Duality
     # ═══════════════════════════════════════════════════════
     s11 = prs.slides.add_slide(blank_layout)
-    add_header(s11, "Application 2: Click-Through-Rate (CTR) & Auction Engines")
+    add_header(s11, "Positive vs. Negative Binomial: Mathematical Duality")
     add_footer(s11, 11)
 
-    add_card(s11, Inches(0.8), Inches(1.6), Inches(5.8), Inches(5.1))
-    tb11_l = s11.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.4), Inches(4.7))
-    tf11_l = tb11_l.text_frame
-    tf11_l.word_wrap = True
+    # Left: Comparison Figure
+    add_card(s11, Inches(0.8), Inches(1.55), Inches(6.3), Inches(5.2))
+    if os.path.exists("fig_comparison_pos_neg.png"):
+        s11.shapes.add_picture("fig_comparison_pos_neg.png", Inches(0.92), Inches(1.85), width=Inches(6.05))
+    cap11 = s11.shapes.add_textbox(Inches(1.0), Inches(6.15), Inches(5.9), Inches(0.45))
+    p_c11 = cap11.text_frame.paragraphs[0]
+    p_c11.text = "Figure 11: Underdispersed Positive Binomial vs. Overdispersed Negative Binomial"
+    p_c11.font.size = Pt(10)
+    p_c11.alignment = PP_ALIGN.CENTER
+    p_c11.font.color.rgb = TEXT_MUTED
 
-    p = tf11_l.paragraphs[0]
-    p.text = "Real-Time Ad Auction Optimization"
-    p.font.size = Pt(15)
+    # Right: Duality Table + ML Bridge
+    add_card(s11, Inches(7.3), Inches(1.55), Inches(5.233), Inches(3.25))
+    tb11_t = s11.shapes.add_textbox(Inches(7.45), Inches(1.68), Inches(4.95), Inches(3.0))
+    tf11_t = tb11_t.text_frame
+    tf11_t.word_wrap = True
+    p = tf11_t.paragraphs[0]
+    p.text = "Side-by-Side Comparison"
+    p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
-    p.space_after = Pt(10)
+    p.space_after = Pt(6)
 
-    ad_steps = [
-        ("The Impression Funnel: ", "Every ad display is an independent opportunity (n). The user clicking is a binary outcome with probability p = pCTR."),
-        ("Binomial Modeling: ", "Total clicks follow k ~ Binomial(n, pCTR). Expected clicks = n × pCTR."),
-        ("Auction Ranking: ", "Bidding engines evaluate ads by Expected Revenue = n × pCTR × Bid Price."),
-        ("Poisson Bridge: ", "When impressions reach millions (n → ∞) and click probability is small (p < 0.01), Binomial converges to Poisson(λ = np).")
+    comp_rows = [
+        ("Fixed: ", "Trials n  vs.  Target Successes r"),
+        ("Random k: ", "Successes {0..n}  vs.  Failures {0..∞}"),
+        ("Expansion: ", "(p + q)^n  vs.  (1 − q)^(-r)"),
+        ("Mean (μ): ", "np  vs.  r(1 − p)/p"),
+        ("Variance (σ²): ", "np(1−p) < μ (Under)  vs.  r(1−p)/p² > μ (Over)")
     ]
-    for s_title, s_desc in ad_steps:
-        p_s = tf11_l.add_paragraph()
-        r1 = p_s.add_run()
-        r1.text = "• " + s_title
+    for c_k, c_v in comp_rows:
+        p_c = tf11_t.add_paragraph()
+        r1 = p_c.add_run()
+        r1.text = "• " + c_k
         r1.font.bold = True
-        r1.font.size = Pt(11.5)
+        r1.font.size = Pt(11)
         r1.font.color.rgb = PRIMARY_DARK
-        r2 = p_s.add_run()
-        r2.text = s_desc
-        r2.font.size = Pt(11)
+        r2 = p_c.add_run()
+        r2.text = c_v
+        r2.font.size = Pt(10.5)
         r2.font.color.rgb = TEXT_DARK
-        p_s.space_after = Pt(8)
+        p_c.space_after = Pt(5)
 
-    # Right: Revenue equation & calibration
-    add_card(s11, Inches(6.9), Inches(1.6), Inches(5.633), Inches(2.6), bg_color=HIGHLIGHT_BG, border_color=PRIMARY)
-    tb11_r1 = s11.shapes.add_textbox(Inches(7.1), Inches(1.8), Inches(5.2), Inches(2.2))
-    tf11_r1 = tb11_r1.text_frame
-    tf11_r1.word_wrap = True
-    p = tf11_r1.paragraphs[0]
-    p.text = "Expected Revenue Formulation"
-    p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(6)
-    p1 = tf11_r1.add_paragraph()
-    p1.text = "Expected Value = n · pCTR · Cost-Per-Click Bid\n\nAd platforms run machine learning models (gradient boosted trees, deep neural nets) specifically to estimate the Binomial parameter pCTR."
-    p1.font.size = Pt(11.5)
-    p1.font.color.rgb = TEXT_DARK
-
-    add_card(s11, Inches(6.9), Inches(4.4), Inches(5.633), Inches(2.3))
-    tb11_r2 = s11.shapes.add_textbox(Inches(7.1), Inches(4.6), Inches(5.2), Inches(1.9))
-    tf11_r2 = tb11_r2.text_frame
-    tf11_r2.word_wrap = True
-    p = tf11_r2.paragraphs[0]
-    p.text = "Calibration Challenge"
-    p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = ACCENT
-    p.space_after = Pt(6)
-    p1 = tf11_r2.add_paragraph()
-    p1.text = "Because click rates are low (0.1% to 2.0%), slight miscalibration in p leads to massive financial losses in automated second-price auctions. Calibration curves are checked continuously."
-    p1.font.size = Pt(11)
-    p1.font.color.rgb = TEXT_MUTED
-
-    # ═══════════════════════════════════════════════════════
-    # SLIDE 12: Application 3 — Logistic Regression
-    # ═══════════════════════════════════════════════════════
-    s12 = prs.slides.add_slide(blank_layout)
-    add_header(s12, "Application 3: The Engine of Logistic Regression")
-    add_footer(s12, 12)
-
-    add_card(s12, Inches(0.8), Inches(1.6), Inches(5.8), Inches(5.1))
-    tb12_l = s12.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.4), Inches(4.7))
-    tf12_l = tb12_l.text_frame
-    tf12_l.word_wrap = True
-
-    p = tf12_l.paragraphs[0]
-    p.text = "Generalized Linear Binomial Model"
-    p.font.size = Pt(15)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(10)
-
-    lr_steps = [
-        ("Binary Prediction: ", "In classification, we want to predict p(x) = P(Y = 1 | x) conditioned on features x."),
-        ("Logit Link: ", "Instead of assuming constant p, Logistic Regression models the log-odds linearly: ln[ p(x) / (1 − p(x)) ] = β^T x."),
-        ("Sigmoid Inversion: ", "Inverting the logit yields the standard Sigmoid function: p(x) = 1 / (1 + e^(−β^T x))."),
-        ("Loss Equivalence: ", "Binary Cross-Entropy (BCE) loss is mathematically identical to the negative log-likelihood of independent Binomial trials!")
-    ]
-    for s_title, s_desc in lr_steps:
-        p_s = tf12_l.add_paragraph()
-        r1 = p_s.add_run()
-        r1.text = "• " + s_title
-        r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = PRIMARY_DARK
-        r2 = p_s.add_run()
-        r2.text = s_desc
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_DARK
-        p_s.space_after = Pt(8)
-
-    # Right: Formula & Takeaway
-    add_card(s12, Inches(6.9), Inches(1.6), Inches(5.633), Inches(2.6), bg_color=HIGHLIGHT_BG, border_color=PRIMARY)
-    tb12_r1 = s12.shapes.add_textbox(Inches(7.1), Inches(1.8), Inches(5.2), Inches(2.2))
-    tf12_r1 = tb12_r1.text_frame
-    tf12_r1.word_wrap = True
-    p = tf12_r1.paragraphs[0]
-    p.text = "Binary Cross-Entropy (BCE) Loss"
-    p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(6)
-    p1 = tf12_r1.add_paragraph()
-    p1.text = "Loss = − ∑ [ y_i ln(p_i) + (1 − y_i) ln(1 − p_i) ]\n\nDirectly derived from the negative log-likelihood of Bernoulli/Binomial outcomes!"
-    p1.font.size = Pt(11.5)
-    p1.font.color.rgb = TEXT_DARK
-
-    add_card(s12, Inches(6.9), Inches(4.4), Inches(5.633), Inches(2.3))
-    tb12_r2 = s12.shapes.add_textbox(Inches(7.1), Inches(4.6), Inches(5.2), Inches(1.9))
-    tf12_r2 = tb12_r2.text_frame
-    tf12_r2.word_wrap = True
-    p = tf12_r2.paragraphs[0]
-    p.text = "Deep Learning Foundation"
-    p.font.size = Pt(14)
+    add_card(s11, Inches(7.3), Inches(4.95), Inches(5.233), Inches(1.8), bg_color=HIGHLIGHT_BG, border_color=SUCCESS_COLOR)
+    tb11_b = s11.shapes.add_textbox(Inches(7.45), Inches(5.08), Inches(4.95), Inches(1.55))
+    tf11_b = tb11_b.text_frame
+    tf11_b.word_wrap = True
+    p = tf11_b.paragraphs[0]
+    p.text = "ML Model Bridge"
+    p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = SUCCESS_COLOR
-    p.space_after = Pt(6)
-    p1 = tf12_r2.add_paragraph()
-    p1.text = "Every neural network performing binary classification with a Sigmoid output layer is actively estimating a parameter for a Bernoulli/Binomial trial. The Binomial distribution is alive in modern AI."
-    p1.font.size = Pt(11)
-    p1.font.color.rgb = TEXT_MUTED
+    p.space_after = Pt(4)
+    p1 = tf11_b.add_paragraph()
+    p1.text = "Positive Binomial powers Logistic Regression (Binary Cross-Entropy loss for p(x) = σ(βᵀx)), while Negative Binomial powers Negative Binomial Regression for overdispersed counts."
+    p1.font.size = Pt(10.5)
+    p1.font.color.rgb = TEXT_DARK
+
+    # ═══════════════════════════════════════════════════════
+    # SLIDE 12: Combined ML Applications
+    # ═══════════════════════════════════════════════════════
+    s12 = prs.slides.add_slide(blank_layout)
+    add_header(s12, "Real-World ML Applications: Positive vs. Negative Binomial")
+    add_footer(s12, 12)
+
+    # Left: Positive Binomial Applications
+    add_card(s12, Inches(0.8), Inches(1.6), Inches(5.7), Inches(5.1), border_color=PRIMARY)
+    tb12_l = s12.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.3), Inches(4.7))
+    tf12_l = tb12_l.text_frame
+    tf12_l.word_wrap = True
+    p = tf12_l.paragraphs[0]
+    p.text = "Positive Binomial (Bounded Counts)"
+    p.font.size = Pt(16)
+    p.font.bold = True
+    p.font.color.rgb = PRIMARY
+    p.space_after = Pt(12)
+
+    pos_apps = [
+        ("A/B Testing & Conversion Lift: ", "Split visitors into Layout A vs. B; run two-proportion Z-tests to validate deployment decisions (Netflix, Meta, Amazon)."),
+        ("Click-Through Rate (CTR) Auctions: ", "Model expected clicks k ~ Bin(n, pCTR) across n impressions to price real-time ad bids."),
+        ("Binary Classification Loss: ", "Binary Cross-Entropy in Logistic Regression & Neural Nets optimizes Binomial log-likelihood.")
+    ]
+    for a_t, a_d in pos_apps:
+        p_a = tf12_l.add_paragraph()
+        r1 = p_a.add_run()
+        r1.text = "• " + a_t
+        r1.font.bold = True
+        r1.font.size = Pt(12)
+        r1.font.color.rgb = PRIMARY_DARK
+        r2 = p_a.add_run()
+        r2.text = a_d
+        r2.font.size = Pt(11.5)
+        r2.font.color.rgb = TEXT_DARK
+        p_a.space_after = Pt(12)
+
+    # Right: Negative Binomial Applications
+    add_card(s12, Inches(6.8), Inches(1.6), Inches(5.733), Inches(5.1), border_color=ACCENT)
+    tb12_r = s12.shapes.add_textbox(Inches(7.0), Inches(1.8), Inches(5.3), Inches(4.7))
+    tf12_r = tb12_r.text_frame
+    tf12_r.word_wrap = True
+    p = tf12_r.paragraphs[0]
+    p.text = "Negative Binomial (Overdispersed Counts)"
+    p.font.size = Pt(16)
+    p.font.bold = True
+    p.font.color.rgb = ACCENT
+    p.space_after = Pt(12)
+
+    neg_apps = [
+        ("Negative Binomial Regression (GLMs): ", "Predicts insurance claims, hospital ER visits, and software bug counts where σ² ≫ μ (where Poisson fails)."),
+        ("Customer & Churn Analytics: ", "Models repeat purchases or support tickets before customer churn."),
+        ("Bioinformatics (RNA-Seq): ", "Powers differential gene expression tools (DESeq2, edgeR) on overdispersed sequencing read counts.")
+    ]
+    for a_t, a_d in neg_apps:
+        p_a = tf12_r.add_paragraph()
+        r1 = p_a.add_run()
+        r1.text = "• " + a_t
+        r1.font.bold = True
+        r1.font.size = Pt(12)
+        r1.font.color.rgb = PRIMARY_DARK
+        r2 = p_a.add_run()
+        r2.text = a_d
+        r2.font.size = Pt(11.5)
+        r2.font.color.rgb = TEXT_DARK
+        p_a.space_after = Pt(12)
 
     # ═══════════════════════════════════════════════════════
     # SLIDE 13: Practical Demo Part A (1000 Samples)
@@ -894,45 +869,45 @@ def create_binomial_deck():
     p_desc.font.color.rgb = TEXT_DARK
 
     # ═══════════════════════════════════════════════════════
-    # SLIDE 14: Practical Demo Part B (A/B Testing)
+    # SLIDE 14: Practical Demo Part B (Negative Binomial Simulation)
     # ═══════════════════════════════════════════════════════
     s14 = prs.slides.add_slide(blank_layout)
-    add_header(s14, "Practical Demo — Part B: Applied A/B Testing Evaluation")
+    add_header(s14, "Practical Demo — Part B: Negative Binomial Simulation")
     add_footer(s14, 14)
 
     # Left: Plot
     add_card(s14, Inches(0.8), Inches(1.6), Inches(5.8), Inches(5.1))
-    if os.path.exists("fig_ab_testing_distributions.png"):
-        s14.shapes.add_picture("fig_ab_testing_distributions.png", Inches(0.95), Inches(1.8), width=Inches(5.5))
+    if os.path.exists("fig_negbinom_simulation.png"):
+        s14.shapes.add_picture("fig_negbinom_simulation.png", Inches(0.95), Inches(1.8), width=Inches(5.5))
     cap_box = s14.shapes.add_textbox(Inches(1.0), Inches(6.1), Inches(5.4), Inches(0.5))
     tf_cap = cap_box.text_frame
     p_cap = tf_cap.paragraphs[0]
-    p_cap.text = "Figure 14: Conversion Distributions for Layout A (10%) vs. Layout B (13%)"
+    p_cap.text = "Figure 14: 1,000 Simulated Samples vs Theoretical NegBin PMF (r=5, p=0.4)"
     p_cap.font.size = Pt(10)
     p_cap.alignment = PP_ALIGN.CENTER
     p_cap.font.color.rgb = TEXT_MUTED
 
-    # Right: Statistical inference card
-    add_card(s14, Inches(6.9), Inches(1.6), Inches(5.633), Inches(5.1), bg_color=HIGHLIGHT_BG, border_color=SUCCESS_COLOR)
+    # Right: Moment Comparison Table
+    add_card(s14, Inches(6.9), Inches(1.6), Inches(5.633), Inches(5.1), bg_color=HIGHLIGHT_BG, border_color=ACCENT)
     tb14_r = s14.shapes.add_textbox(Inches(7.1), Inches(1.8), Inches(5.2), Inches(4.7))
     tf14_r = tb14_r.text_frame
     tf14_r.word_wrap = True
 
     p = tf14_r.paragraphs[0]
-    p.text = "A/B Testing Statistical Results"
+    p.text = "Empirical vs. Theoretical Moments (N=1,000)"
     p.font.size = Pt(15)
     p.font.bold = True
-    p.font.color.rgb = SUCCESS_COLOR
+    p.font.color.rgb = ACCENT
     p.space_after = Pt(10)
 
-    ab_res = [
-        ("Control (Layout A): ", "n = 1,000 visitors, 100 conversions (p_A = 10.0%)"),
-        ("Variant (Layout B): ", "n = 1,000 visitors, 130 conversions (p_B = 13.0%)"),
-        ("Observed Lift: ", "+3.00% absolute lift (+30.0% relative improvement)"),
-        ("Test Statistic: ", "Pooled Z-Score = 2.1051"),
-        ("p-Value: ", "0.0176 (1.76%)")
+    nb_res = [
+        ("Mean (μ): ", "Theoretical = 7.5000  |  Simulated = 7.4860 (Diff: 0.0140)"),
+        ("Variance (σ²): ", "Theoretical = 18.7500  |  Simulated = 20.0398 (Diff: 1.2898)"),
+        ("Std Dev (σ): ", "Theoretical = 4.3301  |  Simulated = 4.4766 (Diff: 0.1465)"),
+        ("Dispersion (σ²/μ): ", "2.6770 (Theoretical: 2.5000 > 1.0 → Overdispersed!)"),
+        ("MLE Parameter (p̂): ", "r / (r + x̄) = 0.4004  (True p = 0.4000)")
     ]
-    for r_title, r_desc in ab_res:
+    for r_title, r_desc in nb_res:
         p_r = tf14_r.add_paragraph()
         r1 = p_r.add_run()
         r1.text = "• " + r_title
@@ -946,14 +921,14 @@ def create_binomial_deck():
         p_r.space_after = Pt(6)
 
     p_dec = tf14_r.add_paragraph()
-    p_dec.text = "\nBusiness Decision:"
+    p_dec.text = "\nKey Takeaway:"
     p_dec.font.size = Pt(13)
     p_dec.font.bold = True
     p_dec.font.color.rgb = PRIMARY
     p_dec.space_after = Pt(4)
 
     p_decd = tf14_r.add_paragraph()
-    p_decd.text = "Because p-value (0.0176) < 0.05, we reject the null hypothesis H_0 at the 95% confidence level. The platform should deploy Layout B immediately."
+    p_decd.text = "Simulated variance (20.04) is nearly 2.7× the mean (7.49), empirically proving overdispersion while MLE recovers p within 0.10% error!"
     p_decd.font.size = Pt(11)
     p_decd.font.color.rgb = TEXT_DARK
 
@@ -988,9 +963,9 @@ def create_binomial_deck():
     p.space_after = Pt(10)
 
     summary_pts = [
-        ("The Discrete Cornerstone: ", "The Binomial distribution is the mathematical standard for modeling discrete binary counts and conversion funnels."),
-        ("Bridge to Machine Learning: ", "Connects discrete experiments to continuous AI via the De Moivre-Laplace theorem and Logistic Regression logit links."),
-        ("Instant Parameter Estimation: ", "Closed-form MLE p̂ = k/n provides unbiased, optimal estimates without iterative gradient descent.")
+        ("Mathematical Duality: ", "Positive Binomial models bounded successes (σ² < μ), while Negative Binomial models unbounded failures (σ² > μ)."),
+        ("Bridge to Machine Learning: ", "Together they power A/B testing, Logistic Regression, and Negative Binomial GLMs for overdispersed count data."),
+        ("Empirical Validation: ", "Both 1,000-sample Python simulations converged tightly to theoretical moments and MLE parameters.")
     ]
     for s_title, s_desc in summary_pts:
         p_s = tf15_l.add_paragraph()
@@ -1019,9 +994,9 @@ def create_binomial_deck():
     p.space_after = Pt(10)
 
     limits = [
-        ("Violation of Independence: ", "Viral loops, social contagion, and referral networks violate the 'I' assumption in BINS."),
-        ("Probability Drift (Non-Constant p): ", "Conversion rates fluctuate by time of day, season, and campaign fatigue, violating constant p."),
-        ("Overdispersion: ", "When real-world variance exceeds np(1-p), models must upgrade to Beta-Binomial distributions.")
+        ("Violation of Independence: ", "Viral loops, social contagion, and referral networks violate the independence assumption."),
+        ("Probability Drift (Non-Constant p): ", "Conversion and failure rates fluctuate by time of day, season, and fatigue."),
+        ("Zero-Inflation: ", "Datasets with excessive zeros require Zero-Inflated Negative Binomial (ZINB) models.")
     ]
     for l_title, l_desc in limits:
         p_l = tf15_r.add_paragraph()
@@ -1047,9 +1022,10 @@ def create_binomial_deck():
     p_ref_h.font.color.rgb = RGBColor(148, 163, 184)
 
     refs = (
-        "[1] Wackerly, D., Mendenhall, W., & Scheaffer, R. Mathematical Statistics with Applications, 7th ed., Cengage, 2008.\n"
-        "[2] Montgomery, D. C., & Runger, G. C. Applied Statistics and Probability for Engineers, 7th ed., Wiley, 2018. | [3] Bishop, C. M. Pattern Recognition and Machine Learning, Springer, 2006.\n"
-        "[4] Kohavi, R., Tang, D., & Xu, Y. Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing, Cambridge University Press, 2020."
+        "[1] Casella, G., & Berger, R. L. Statistical Inference, 2nd ed., Duxbury Press, 2002.  |  "
+        "[2] Bishop, C. M. Pattern Recognition and Machine Learning, Springer, 2006.\n"
+        "[3] Hilbe, J. M. Negative Binomial Regression, 2nd ed., Cambridge University Press, 2011.  |  "
+        "[4] Hastie, T., Tibshirani, R., & Friedman, J. The Elements of Statistical Learning, 2nd ed., Springer, 2009."
     )
     p_ref = tf15_b.add_paragraph()
     p_ref.text = refs

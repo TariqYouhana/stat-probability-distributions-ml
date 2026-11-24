@@ -82,10 +82,10 @@ cdf_vals = stats.binom.cdf(k_cdf, n_cdf, p_cdf)
 
 ax.step(k_cdf, cdf_vals, where='post', color=PRIMARY, linewidth=2.5, label=f'Binomial CDF (n={n_cdf}, p={p_cdf})')
 ax.plot(k_cdf, cdf_vals, 'o', color=PRIMARY, markersize=5)
-k_mid = 12
-f_mid = stats.binom.cdf(k_mid, n_cdf, p_cdf)
+med = int(stats.binom.median(n_cdf, p_cdf))
+f_med = stats.binom.cdf(med, n_cdf, p_cdf)
 ax.axhline(y=0.5, color='gray', linestyle=':', alpha=0.7)
-ax.axvline(x=k_mid, color=DANGER, linestyle='--', alpha=0.7, label=f'Median k={k_mid} (P(X ≤ {k_mid}) = {f_mid:.2f})')
+ax.axvline(x=med, color=DANGER, linestyle='--', alpha=0.7, label=f'Median k={med} (P(X ≤ {med}) = {f_med:.3f})')
 
 ax.set_xlabel('Successes (k)', fontsize=12)
 ax.set_ylabel('Cumulative Probability F(k) = P(X ≤ k)', fontsize=12)
@@ -243,10 +243,10 @@ plt.savefig('fig_negbinom_pmf_variations.png', bbox_inches='tight')
 plt.close()
 print("Saved fig_negbinom_pmf_variations.png")
 
-# 8. Slide 11: Side-by-Side Comparison: Positive Binomial vs Negative Binomial
+# 8. Slide 11: Side-by-Side Comparison: Binomial vs Negative Binomial
 fig, axes = plt.subplots(1, 2, figsize=(14, 4.8))
 
-# Positive Binomial(n=20, p=0.4)
+# Binomial(n=20, p=0.4)
 n_comp, p_comp = 20, 0.4
 k_pos = np.arange(0, n_comp + 1)
 pmf_pos = stats.binom.pmf(k_pos, n_comp, p_comp)
@@ -254,7 +254,7 @@ mu_pos = n_comp * p_comp
 var_pos = n_comp * p_comp * (1 - p_comp)
 axes[0].bar(k_pos, pmf_pos, color=PRIMARY, alpha=0.85, edgecolor='white')
 axes[0].axvline(mu_pos, color=DANGER, linestyle='--', linewidth=2, label=f'Mean μ = {mu_pos:.1f}, Var σ² = {var_pos:.1f} (< μ)')
-axes[0].set_title('Positive Binomial(n=20, p=0.4)\nFixed Trials → Count Successes (Underdispersed)', fontsize=11.5, fontweight='bold')
+axes[0].set_title('Binomial(n=20, p=0.4)\nFixed Trials → Count Successes (Underdispersed)', fontsize=11.5, fontweight='bold')
 axes[0].set_xlabel('Successes (k) ∈ {0, ..., 20}', fontsize=11)
 axes[0].set_ylabel('Probability P(X = k)', fontsize=11)
 axes[0].legend(fontsize=9.5)
@@ -272,7 +272,7 @@ axes[1].set_xlabel('Failures (k) ∈ {0, 1, 2, ... ∞}', fontsize=11)
 axes[1].set_ylabel('Probability P(X = k)', fontsize=11)
 axes[1].legend(fontsize=9.5)
 
-plt.suptitle('Figure 11: Mathematical Duality — Positive vs. Negative Binomial', fontsize=14, fontweight='bold', y=1.03)
+plt.suptitle('Figure 11: Complementary Views — Binomial vs. Negative Binomial', fontsize=14, fontweight='bold', y=1.03)
 plt.tight_layout()
 plt.savefig('fig_comparison_pos_neg.png', bbox_inches='tight')
 plt.close()

@@ -105,22 +105,29 @@ def create_binomial_deck():
     p0.space_after = Pt(14)
 
     p1 = tf1.add_paragraph()
-    p1.text = "Positive & Negative Binomial Distributions\nin Machine Learning & Data Science"
+    p1.text = "Binomial & Negative Binomial Distributions\nin Machine Learning & Data Science"
     p1.font.size = Pt(34)
     p1.font.bold = True
     p1.font.color.rgb = RGBColor(255, 255, 255)
-    p1.space_after = Pt(16)
+    p1.space_after = Pt(14)
 
     p2 = tf1.add_paragraph()
-    p2.text = "Mathematical Duality, Overdispersion Modeling, and Empirical Simulation"
-    p2.font.size = Pt(16)
+    p2.text = "Complementary Views, Overdispersion Modeling, and Empirical Simulation"
+    p2.font.size = Pt(15)
     p2.font.color.rgb = RGBColor(226, 232, 240)
-    p2.space_after = Pt(28)
+    p2.space_after = Pt(18)
 
     p3 = tf1.add_paragraph()
-    p3.text = "Group 8  •  Probability Distributions & Statistical Modeling Course"
+    p3.text = "STA293 | Probability Distribution | Fall'26 | Section 2  •  Submitted to: Afsana Al Sharmin"
     p3.font.size = Pt(13)
-    p3.font.color.rgb = RGBColor(148, 163, 184)
+    p3.font.bold = True
+    p3.font.color.rgb = RGBColor(147, 197, 253)
+    p3.space_after = Pt(10)
+
+    p4 = tf1.add_paragraph()
+    p4.text = "Group 8 Members: Tasfia Rahman Rodoshi [ID], Tariq Youhana Leon [ID], Shinjiny Anan Apsora [ID], Moumita Akter Mou [ID], Rehnuma Tasnim [ID]"
+    p4.font.size = Pt(11.5)
+    p4.font.color.rgb = RGBColor(203, 213, 225)
 
     # ═══════════════════════════════════════════════════════
     # SLIDE 2: Why Distributions Matter in Data Science
@@ -195,7 +202,7 @@ def create_binomial_deck():
     # SLIDE 3: Introducing the Binomial Distribution
     # ═══════════════════════════════════════════════════════
     s3 = prs.slides.add_slide(blank_layout)
-    add_header(s3, "The Positive Binomial Distribution: Definition & Foundations")
+    add_header(s3, "The Binomial Distribution: Definition & Foundations")
     add_footer(s3, 3)
 
     add_card(s3, Inches(0.8), Inches(1.6), Inches(5.6), Inches(5.1))
@@ -211,7 +218,7 @@ def create_binomial_deck():
     p.space_after = Pt(10)
 
     b_pts = [
-        ("Why 'Positive' Binomial?: ", "Derived from expanding (p + q)^n with a positive exponent n; X takes integer counts in {0, 1, ..., n}."),
+        ("Discrete Nature: ", "The random variable X takes integer counts from the finite support set X ∈ {0, 1, 2, ..., n}."),
         ("Formal Definition: ", "Models the exact probability of obtaining k successes across n identical, independent trials with constant success probability p."),
         ("Special Case (n = 1): ", "When n = 1, the Binomial distribution reduces to the single-trial Bernoulli distribution."),
         ("Real-World Foundation: ", "Serves as the theoretical standard for A/B testing conversion rates, digital ad click tracking, and survey polling.")
@@ -265,7 +272,7 @@ def create_binomial_deck():
     # SLIDE 4: Mathematical Formulation (PMF)
     # ═══════════════════════════════════════════════════════
     s4 = prs.slides.add_slide(blank_layout)
-    add_header(s4, "Mathematical Formulation: Probability Mass Function (PMF)")
+    add_header(s4, "Mathematical Formulation: Probability Mass Function (PMF) [1]")
     add_footer(s4, 4)
 
     # Formula Box
@@ -333,7 +340,7 @@ def create_binomial_deck():
     # SLIDE 5: Expectation & Variance
     # ═══════════════════════════════════════════════════════
     s5 = prs.slides.add_slide(blank_layout)
-    add_header(s5, "Expectation, Dispersion & Theoretical Properties")
+    add_header(s5, "Expectation, Dispersion & Theoretical Properties [1]")
     add_footer(s5, 5)
 
     add_card(s5, Inches(0.8), Inches(1.6), Inches(5.8), Inches(5.1))
@@ -385,7 +392,7 @@ def create_binomial_deck():
     p.space_after = Pt(8)
 
     v_pts = [
-        ("Underdispersion (σ² < μ): ", "Because (1 - p) < 1, Positive Binomial variance is always strictly less than its mean."),
+        ("Underdispersion (σ² < μ): ", "Because (1 - p) < 1, Binomial variance is always strictly less than its mean."),
         ("Peak Uncertainty at p = 0.5: ", "The term p(1-p) achieves its global maximum at p = 0.5 (0.25) and vanishes at p = 0 or 1."),
         ("Linearity of Expectation: ", "Even if trials exhibit weak correlation, E[X] = np remains exact because expectation is strictly linear."),
         ("MLE Estimator: ", "Closed-form Maximum Likelihood Estimator is the sample proportion: p̂_MLE = k / n.")
@@ -549,7 +556,7 @@ def create_binomial_deck():
     # SLIDE 9: Introducing the Negative Binomial Distribution
     # ═══════════════════════════════════════════════════════
     s9 = prs.slides.add_slide(blank_layout)
-    add_header(s9, "The Negative Binomial Distribution: Definition & PMF")
+    add_header(s9, "The Negative Binomial Distribution: Definition & PMF [1]")
     add_footer(s9, 9)
 
     # Top Formula Banner
@@ -576,8 +583,8 @@ def create_binomial_deck():
     p.space_after = Pt(8)
 
     nb_pts = [
-        ("Opposite Framing: ", "Instead of fixing trials n and counting successes, we fix target successes r and count failures k before the r-th success."),
-        ("Why 'Negative'?: ", "Derived from the negative-power series expansion (1 − q)^(-r) = ∑ (k+r-1 choose k) q^k."),
+        ("Opposite Framing: ", "Instead of fixing trials n and counting successes, we fix target successes r and count failures X = k before the r-th success."),
+        ("Convention: ", "X = number of failures before the r-th success (X = 0, 1, 2, ...). If we count total trials Y = X + r instead, E[Y] = r/p; the variance is unchanged."),
         ("Special Case (r = 1): ", "When r = 1, Negative Binomial reduces directly to the Geometric(p) distribution.")
     ]
     for title_t, desc_t in nb_pts:
@@ -628,7 +635,7 @@ def create_binomial_deck():
     # SLIDE 10: Negative Binomial Properties, Overdispersion & Graphs
     # ═══════════════════════════════════════════════════════
     s10 = prs.slides.add_slide(blank_layout)
-    add_header(s10, "Negative Binomial: Moments, Overdispersion & Shape")
+    add_header(s10, "Negative Binomial: Moments, Overdispersion & Shape [1, 3]")
     add_footer(s10, 10)
 
     add_card(s10, Inches(0.8), Inches(1.45), Inches(11.733), Inches(3.75))
@@ -657,13 +664,13 @@ def create_binomial_deck():
     tf10_r = tb10_r.text_frame
     tf10_r.word_wrap = True
     p = tf10_r.paragraphs[0]
-    p.text = "Signature Property: Overdispersion (σ² > μ)"
+    p.text = "Mechanism & Overdispersion (σ² > μ) [3]"
     p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = ACCENT
     p.space_after = Pt(4)
     p1 = tf10_r.add_paragraph()
-    p1.text = "Because μ²/r > 0, variance is ALWAYS strictly greater than the mean—making it essential for noisy real-world count data!"
+    p1.text = "NB arises as a Poisson-Gamma mixture: X | λ ~ Poisson(λ), λ ~ Gamma(shape r, scale (1-p)/p). Hence Var = mean + mean² / r > mean."
     p1.font.size = Pt(11)
     p1.font.color.rgb = TEXT_DARK
 
@@ -671,7 +678,7 @@ def create_binomial_deck():
     # SLIDE 11: Positive vs Negative Binomial Duality
     # ═══════════════════════════════════════════════════════
     s11 = prs.slides.add_slide(blank_layout)
-    add_header(s11, "Positive vs. Negative Binomial: Mathematical Duality")
+    add_header(s11, "Binomial vs. Negative Binomial: Complementary Views")
     add_footer(s11, 11)
 
     # Left: Comparison Figure
@@ -680,7 +687,7 @@ def create_binomial_deck():
         s11.shapes.add_picture("fig_comparison_pos_neg.png", Inches(0.92), Inches(1.85), width=Inches(6.05))
     cap11 = s11.shapes.add_textbox(Inches(1.0), Inches(6.15), Inches(5.9), Inches(0.45))
     p_c11 = cap11.text_frame.paragraphs[0]
-    p_c11.text = "Figure 11: Underdispersed Positive Binomial vs. Overdispersed Negative Binomial"
+    p_c11.text = "Figure 11: Underdispersed Binomial vs. Overdispersed Negative Binomial"
     p_c11.font.size = Pt(10)
     p_c11.alignment = PP_ALIGN.CENTER
     p_c11.font.color.rgb = TEXT_MUTED
@@ -700,9 +707,8 @@ def create_binomial_deck():
     comp_rows = [
         ("Fixed: ", "Trials n  vs.  Target Successes r"),
         ("Random k: ", "Successes {0..n}  vs.  Failures {0..∞}"),
-        ("Expansion: ", "(p + q)^n  vs.  (1 − q)^(-r)"),
         ("Mean (μ): ", "np  vs.  r(1 − p)/p"),
-        ("Variance (σ²): ", "np(1−p) < μ (Under)  vs.  r(1−p)/p² > μ (Over)")
+        ("Variance (σ²): ", "np(1−p) < μ (Under)  vs.  r(1−p)/p² > μ (Over) [3]")
     ]
     for c_k, c_v in comp_rows:
         p_c = tf11_t.add_paragraph()
@@ -728,7 +734,7 @@ def create_binomial_deck():
     p.font.color.rgb = SUCCESS_COLOR
     p.space_after = Pt(4)
     p1 = tf11_b.add_paragraph()
-    p1.text = "Positive Binomial powers Logistic Regression (Binary Cross-Entropy loss for p(x) = σ(βᵀx)), while Negative Binomial powers Negative Binomial Regression for overdispersed counts."
+    p1.text = "The Binomial underlies A/B testing and logistic regression [2, 4]; the Negative Binomial underlies count regression for overdispersed data [3]."
     p1.font.size = Pt(10.5)
     p1.font.color.rgb = TEXT_DARK
 
@@ -736,25 +742,25 @@ def create_binomial_deck():
     # SLIDE 12: Combined ML Applications
     # ═══════════════════════════════════════════════════════
     s12 = prs.slides.add_slide(blank_layout)
-    add_header(s12, "Real-World ML Applications: Positive vs. Negative Binomial")
+    add_header(s12, "Real-World ML Applications: Binomial vs. Negative Binomial")
     add_footer(s12, 12)
 
-    # Left: Positive Binomial Applications
+    # Left: Binomial Applications
     add_card(s12, Inches(0.8), Inches(1.6), Inches(5.7), Inches(5.1), border_color=PRIMARY)
     tb12_l = s12.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(5.3), Inches(4.7))
     tf12_l = tb12_l.text_frame
     tf12_l.word_wrap = True
     p = tf12_l.paragraphs[0]
-    p.text = "Positive Binomial (Bounded Counts)"
+    p.text = "Binomial (Bounded Counts)"
     p.font.size = Pt(16)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
     p.space_after = Pt(12)
 
     pos_apps = [
-        ("A/B Testing & Conversion Lift: ", "Split visitors into Layout A vs. B; run two-proportion Z-tests to validate deployment decisions (Netflix, Meta, Amazon)."),
-        ("Click-Through Rate (CTR) Auctions: ", "Model expected clicks k ~ Bin(n, pCTR) across n impressions to price real-time ad bids."),
-        ("Binary Classification Loss: ", "Binary Cross-Entropy in Logistic Regression & Neural Nets optimizes Binomial log-likelihood.")
+        ("A/B Testing (Hypothetical): ", "Layout A (n=1000, 10%) vs. B (n=1000, 13%): Pooled SE=0.0143, Z=2.1027, p=0.0177 (one-sided), p=0.0355 (two-sided). Reject H0 at alpha=0.05 (one-sided); check practical significance before rollout."),
+        ("Click-Through Rate (CTR): ", "Model expected clicks k ~ Bin(n, pCTR) across n impressions to price real-time ad bids."),
+        ("Logistic Regression [2, 4]: ", "Binary Cross-Entropy in Logistic Regression & Neural Nets optimizes Binomial log-likelihood.")
     ]
     for a_t, a_d in pos_apps:
         p_a = tf12_l.add_paragraph()
@@ -775,14 +781,14 @@ def create_binomial_deck():
     tf12_r = tb12_r.text_frame
     tf12_r.word_wrap = True
     p = tf12_r.paragraphs[0]
-    p.text = "Negative Binomial (Overdispersed Counts)"
+    p.text = "Negative Binomial (Overdispersed Counts) [3]"
     p.font.size = Pt(16)
     p.font.bold = True
     p.font.color.rgb = ACCENT
     p.space_after = Pt(12)
 
     neg_apps = [
-        ("Negative Binomial Regression (GLMs): ", "Predicts insurance claims, hospital ER visits, and software bug counts where σ² ≫ μ (where Poisson fails)."),
+        ("Negative Binomial Regression (GLMs) [3]: ", "Overdispersion is common in real count data (e.g., ER visits, insurance claims, RNA-seq reads) where σ² ≫ μ."),
         ("Customer & Churn Analytics: ", "Models repeat purchases or support tickets before customer churn."),
         ("Bioinformatics (RNA-Seq): ", "Powers differential gene expression tools (DESeq2, edgeR) on overdispersed sequencing read counts.")
     ]
@@ -864,7 +870,7 @@ def create_binomial_deck():
     p_int.space_after = Pt(4)
 
     p_desc = tf13.add_paragraph()
-    p_desc.text = "• Weak Law of Large Numbers (WLLN): With N=1,000 samples, empirical frequencies tightly align with theoretical PMF values.\n• Closed-form MLE p̂ = 12.072 / 20 = 0.6036 recovers true p with 99.4% accuracy."
+    p_desc.text = "• Consistent with the Law of Large Numbers: With N=1,000 samples, Binomial errors are under 1%.\n• Closed-form MLE p̂ = 12.072 / 20 = 0.6036 [1] recovers true p (0.6000)."
     p_desc.font.size = Pt(11)
     p_desc.font.color.rgb = TEXT_DARK
 
@@ -963,9 +969,9 @@ def create_binomial_deck():
     p.space_after = Pt(10)
 
     summary_pts = [
-        ("Mathematical Duality: ", "Positive Binomial models bounded successes (σ² < μ), while Negative Binomial models unbounded failures (σ² > μ)."),
-        ("Bridge to Machine Learning: ", "Together they power A/B testing, Logistic Regression, and Negative Binomial GLMs for overdispersed count data."),
-        ("Empirical Validation: ", "Both 1,000-sample Python simulations converged tightly to theoretical moments and MLE parameters.")
+        ("Complementary views: ", "Binomial models bounded successes (σ² < μ), while Negative Binomial models unbounded failures (σ² > μ) [1, 3]."),
+        ("ML Foundations: ", "The Binomial underlies A/B testing and logistic regression [2, 4]; the Negative Binomial underlies count regression for overdispersed data [3]."),
+        ("Simulation Summary: ", "Both simulations are consistent with theory. Binomial errors are under 1%. The Negative Binomial variance is noisier because of its heavy right tail.")
     ]
     for s_title, s_desc in summary_pts:
         p_s = tf15_l.add_paragraph()
@@ -1025,7 +1031,8 @@ def create_binomial_deck():
         "[1] Casella, G., & Berger, R. L. Statistical Inference, 2nd ed., Duxbury Press, 2002.  |  "
         "[2] Bishop, C. M. Pattern Recognition and Machine Learning, Springer, 2006.\n"
         "[3] Hilbe, J. M. Negative Binomial Regression, 2nd ed., Cambridge University Press, 2011.  |  "
-        "[4] Hastie, T., Tibshirani, R., & Friedman, J. The Elements of Statistical Learning, 2nd ed., Springer, 2009."
+        "[4] Hastie, T., Tibshirani, R., & Friedman, J. The Elements of Statistical Learning, 2nd ed., Springer, 2009.\n"
+        "AI tools were used to help draft text, code and figures: [EDIT: describe actual use]. The group checked all results."
     )
     p_ref = tf15_b.add_paragraph()
     p_ref.text = refs

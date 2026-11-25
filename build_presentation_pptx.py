@@ -23,7 +23,7 @@ def create_binomial_deck():
     SUCCESS_COLOR = RGBColor(16, 185, 129)
     DANGER_COLOR = RGBColor(220, 38, 38)
 
-    def add_header(slide, title_text, category_text="GROUP 8 | THE BINOMIAL DISTRIBUTION IN ML & DATA SCIENCE"):
+    def add_header(slide, title_text, category_text="GROUP 8 | BINOMIAL & NEGATIVE BINOMIAL IN ML & DATA SCIENCE"):
         top_line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(0.08))
         top_line.fill.solid()
         top_line.fill.fore_color.rgb = PRIMARY
@@ -54,7 +54,7 @@ def create_binomial_deck():
         tf = footer_box.text_frame
         tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
         p = tf.paragraphs[0]
-        p.text = "The Binomial Distribution in Machine Learning & Data Science — Group 8"
+        p.text = "Binomial & Negative Binomial Distributions in Machine Learning & Data Science — Group 8"
         p.font.size = Pt(9.5)
         p.font.color.rgb = TEXT_MUTED
         
@@ -486,7 +486,7 @@ def create_binomial_deck():
     p.font.bold = True
     p.font.color.rgb = PRIMARY
     p1 = tf7_r.add_paragraph()
-    p1.text = "• Discrete step function: jumps at each integer k by P(X = k).\n• At k = 12, cumulative probability reaches 57%, crossing the median threshold."
+    p1.text = "• Discrete step function: jumps at each integer k by P(X = k).\n• At k = 12, cumulative probability reaches 58%, crossing the median."
     p1.font.size = Pt(10.5)
     p1.font.color.rgb = TEXT_DARK
 
@@ -613,7 +613,7 @@ def create_binomial_deck():
     p.space_after = Pt(8)
 
     nb_params = [
-        ("r > 0: ", "Fixed target number of successes required to stop."),
+        ("r ∈ {1, 2, 3, ...}: ", "Fixed target number of successes required to stop (a positive integer)."),
         ("k ∈ {0, 1, 2, ...}: ", "Unbounded count of failures observed before the r-th success."),
         ("p ∈ (0, 1]: ", "Constant probability of success on each independent trial."),
         ("Combinatorial Term: ", "The final trial must be the r-th success; (k + r − 1 choose k) arranges k failures across the preceding k + r − 1 trials.")
@@ -934,7 +934,7 @@ def create_binomial_deck():
     p_dec.space_after = Pt(4)
 
     p_decd = tf14_r.add_paragraph()
-    p_decd.text = "Simulated variance (20.04) is nearly 2.7× the mean (7.49), empirically proving overdispersion while MLE recovers p within 0.10% error!"
+    p_decd.text = "Simulated variance (20.04) is about 2.7× the mean (7.49), which supports overdispersion; the MLE recovers p closely (0.4004 vs true 0.4000)."
     p_decd.font.size = Pt(11)
     p_decd.font.color.rgb = TEXT_DARK
 

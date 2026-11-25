@@ -119,7 +119,7 @@
   * **Convention:** $X =$ number of failures before the $r$-th success ($X = 0, 1, 2, \dots$). If we count total trials $Y = X + r$ instead, $E[Y] = r/p$; the variance is unchanged.
   * **Probability Mass Function (PMF) [1]:**
     $$P(X = k) = \binom{k + r - 1}{k} p^r (1 - p)^k \quad \text{for } k \in \{0, 1, 2, \dots, \infty\}$$
-  * **Parameters:** $r > 0$ (target successes), $p \in (0, 1]$ (success probability per trial).
+  * **Parameters:** $r \in \{1, 2, 3, \dots\}$ (fixed target number of successes, a positive integer), $p \in (0, 1]$ (success probability per trial).
   * **Special Case:** When $r = 1$, it reduces to the **Geometric** distribution.
 * **Visuals:** Formula box + "Flipped Question" & Convention card.
 * **Estimated Time:** ~55 seconds
